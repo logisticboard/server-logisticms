@@ -3,6 +3,7 @@ package com.example.logisticms.entity;
 
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
 
@@ -15,10 +16,10 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 @EqualsAndHashCode(callSuper = true)
+@ToString
 public class Driver extends BaseEntity {
 
     @Id
-    @UuidGenerator(style = UuidGenerator.Style.TIME)
     @Column(updatable = false, nullable = false)
     private UUID id;
 
@@ -36,5 +37,8 @@ public class Driver extends BaseEntity {
 
     @ManyToOne
     private Truck truck;
+
+    @ManyToOne
+    private FleetOperator fleetOperator;
 }
 

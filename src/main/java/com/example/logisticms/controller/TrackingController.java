@@ -15,13 +15,13 @@ public class TrackingController {
     @Autowired
     private TrackingServiceImpl trackingService;
 
-    @PostMapping("/driver/{driverId}/shipment/{shipmentId}")
-    public LocationUpdate addLocationUpdate(@PathVariable Long driverId,
-                                            @PathVariable Long shipmentId,
-                                            @RequestParam Double lat,
-                                            @RequestParam Double lon) {
-        return trackingService.addLocationUpdate(driverId, shipmentId, lat, lon);
-    }
+//    @PostMapping("/driver/{driverId}/shipment/{shipmentId}")
+//    public LocationUpdate addLocationUpdate(@PathVariable Long driverId,
+//                                            @PathVariable Long shipmentId,
+//                                            @RequestParam Double lat,
+//                                            @RequestParam Double lon) {
+//        return trackingService.addLocationUpdate(driverId, shipmentId, lat, lon);
+//    }
 
     @GetMapping("/shipment/{shipmentId}")
     public List<LocationUpdate> getShipmentTracking(@PathVariable Long shipmentId) {

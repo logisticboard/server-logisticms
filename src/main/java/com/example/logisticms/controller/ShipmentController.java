@@ -36,12 +36,12 @@ public class ShipmentController {
         return shipmentService.updateStatus(id, status);
     }
 
-    @PutMapping("/{id}/assign")
-    public Shipment assignTruckAndDriver(@PathVariable Long id,
-                                         @RequestParam Long truckId,
-                                         @RequestParam Long driverId) {
-        return shipmentService.assignTruckAndDriver(id, truckId, driverId);
-    }
+//    @PutMapping("/{id}/assign")
+//    public Shipment assignTruckAndDriver(@PathVariable Long id,
+//                                         @RequestParam Long truckId,
+//                                         @RequestParam Long driverId) {
+//        return shipmentService.assignTruckAndDriver(id, truckId, driverId);
+//    }
 
     @DeleteMapping("/{id}")
     public void deleteShipment(@PathVariable Long id) {

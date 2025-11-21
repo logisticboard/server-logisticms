@@ -1,6 +1,7 @@
 package com.example.logisticms.service.impl;
 
 
+import com.example.logisticms.dto.TruckDto;
 import com.example.logisticms.entity.Driver;
 import com.example.logisticms.entity.Truck;
 import com.example.logisticms.entity.TruckStatus;
@@ -20,10 +21,10 @@ public class TruckServiceImpl {
     @Autowired
     private DriverRepository driverRepository;
 
-    public Truck createTruck(Truck truck) {
-        truck.setStatus(TruckStatus.AVAILABLE);
-        return truckRepository.save(truck);
-    }
+//    public TruckDto createOrUpdateTruck(Truck truck) {
+//        truck.setStatus(TruckStatus.AVAILABLE);
+//        return truckRepository.save(truck);
+//    }
 
     public List<Truck> getAllTrucks() {
         return truckRepository.findAll();
@@ -48,16 +49,16 @@ public class TruckServiceImpl {
         return truckRepository.save(truck);
     }
 
-    public Truck assignDriver(Long truckId, Long driverId) {
-        Truck truck = getTruckById(truckId);
-        Driver driver = driverRepository.findById(driverId)
-                .orElseThrow(() -> new RuntimeException("Driver not found with ID: " + driverId));
-
-        truck.setAssignedDriver(driver);
-        driver.setTruck(truck);
-
-        driverRepository.save(driver);
-        return truckRepository.save(truck);
-    }
+//    public Truck assignDriver(Long truckId, Long driverId) {
+//        Truck truck = getTruckById(truckId);
+//        Driver driver = driverRepository.findById(driverId)
+//                .orElseThrow(() -> new RuntimeException("Driver not found with ID: " + driverId));
+//
+////        truck.setAssignedDriver(driver);
+//        driver.setTruck(truck);
+//
+//        driverRepository.save(driver);
+//        return truckRepository.save(truck);
+//    }
 }
 

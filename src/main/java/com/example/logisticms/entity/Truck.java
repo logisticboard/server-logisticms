@@ -28,6 +28,8 @@ public class Truck {
     @Enumerated(EnumType.STRING)
     private TruckStatus status; // AVAILABLE, ON_TRIP, UNDER_MAINTENANCE
 
+    private String description;
+
     @OneToMany
     @JoinColumn(name = "driver_id")
     private List<Driver> assignedDriver;

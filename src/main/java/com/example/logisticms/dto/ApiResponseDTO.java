@@ -19,7 +19,7 @@ public class ApiResponseDTO<T> {
 
     private String apiPath;
     private HttpStatus errorCode;
-    private LocalDateTime errorTime;
+    private String errorTime;
 
     public ApiResponseDTO(String message, boolean success) {
         this.message = message;
@@ -32,7 +32,7 @@ public class ApiResponseDTO<T> {
         this.data = data;
     }
 
-    public static <T> ApiResponseDTO<T> error(String apiPath, HttpStatus errorCode, String errorMessage, LocalDateTime errorTime){
+    public static <T> ApiResponseDTO<T> error(String apiPath, HttpStatus errorCode, String errorMessage, String errorTime){
         ApiResponseDTO<T> response = new ApiResponseDTO<>();
         response.setSuccess(false);
         response.setApiPath(apiPath);

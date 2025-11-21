@@ -22,7 +22,7 @@ public class GlobalExceptionHandler {
                 webRequest.getDescription(false).replace("uri=", ""),
                 HttpStatus.INTERNAL_SERVER_ERROR,
                 "An unexpected error occurred. Please try again later.",
-                LocalDateTime.now()
+                LocalDateTime.now().toString()
         );
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(dto);
     }
@@ -38,7 +38,7 @@ public class GlobalExceptionHandler {
                 webRequest.getDescription(false).replace("uri=", ""),
                 HttpStatus.BAD_REQUEST,
                 errorMessage,
-                LocalDateTime.now()
+                LocalDateTime.now().toString()
         );
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(dto);
     }
@@ -50,7 +50,7 @@ public class GlobalExceptionHandler {
                 webRequest.getDescription(false).replace("uri=", ""),
                 HttpStatus.BAD_REQUEST,
                 errorMessage,
-                LocalDateTime.now()
+                LocalDateTime.now().toString()
         );
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(dto);
     }
@@ -63,7 +63,7 @@ public class GlobalExceptionHandler {
                 webRequest.getDescription(false).replace("uri=", ""),
                 HttpStatus.TOO_MANY_REQUESTS,
                 ex.getMessage(),
-                LocalDateTime.now()
+                LocalDateTime.now().toString()
         );
         return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
                 .body(dto);
@@ -78,7 +78,7 @@ public class GlobalExceptionHandler {
                 webRequest.getDescription(false).replace("uri=", ""),
                 HttpStatus.NOT_FOUND,
                 ex.getMessage(),
-                LocalDateTime.now()
+                LocalDateTime.now().toString()
         );
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(dto);

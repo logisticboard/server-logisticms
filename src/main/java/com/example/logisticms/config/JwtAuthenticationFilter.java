@@ -1,5 +1,6 @@
 package com.example.logisticms.config;
 
+import com.example.logisticms.exception.InvalidJwtTokenException;
 import com.example.logisticms.service.impl.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -16,7 +17,7 @@ import java.util.List;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private JwtUtil jwtUtil;
+    private final JwtUtil jwtUtil;
 
     public JwtAuthenticationFilter(JwtUtil jwtUtil) {
         this.jwtUtil = jwtUtil;
@@ -29,6 +30,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String authHeader = request.getHeader("Authorization");
+        System.out.println("authHeader: " + authHeader);
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
@@ -46,8 +48,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
 
             } catch (Exception ignored) {
-                // Token invalid → security context stays empty → will be handled by access rules
+                SecurityContextHolder.clearContext();
             }
+        }else {
+            SecurityContextHolder.clearContext();
         }
 
         filterChain.doFilter(request, response);

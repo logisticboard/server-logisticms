@@ -49,24 +49,24 @@ public class ShipmentServiceImpl {
         return shipmentRepository.save(shipment);
     }
 
-    public Shipment assignTruckAndDriver(Long shipmentId, Long truckId, Long driverId) {
-        Shipment shipment = getShipmentById(shipmentId);
-        Truck truck = truckRepository.findById(truckId)
-                .orElseThrow(() -> new RuntimeException("Truck not found"));
-        Driver driver = driverRepository.findById(driverId)
-                .orElseThrow(() -> new RuntimeException("Driver not found"));
-
-        shipment.setTruck(truck);
-        shipment.setDriver(driver);
-
-        truck.setStatus(TruckStatus.ON_TRIP);
-        driver.setStatus(DriverStatus.ON_TRIP);
-
-        truckRepository.save(truck);
-        driverRepository.save(driver);
-
-        return shipmentRepository.save(shipment);
-    }
+//    public Shipment assignTruckAndDriver(Long shipmentId, Long truckId, Long driverId) {
+//        Shipment shipment = getShipmentById(shipmentId);
+//        Truck truck = truckRepository.findById(truckId)
+//                .orElseThrow(() -> new RuntimeException("Truck not found"));
+//        Driver driver = driverRepository.findById(driverId)
+//                .orElseThrow(() -> new RuntimeException("Driver not found"));
+//
+//        shipment.setTruck(truck);
+//        shipment.setDriver(driver);
+//
+//        truck.setStatus(TruckStatus.ON_TRIP);
+//        driver.setStatus(DriverStatus.ON_TRIP);
+//
+//        truckRepository.save(truck);
+//        driverRepository.save(driver);
+//
+//        return shipmentRepository.save(shipment);
+//    }
 
     public void deleteShipment(Long id) {
         shipmentRepository.deleteById(id);
