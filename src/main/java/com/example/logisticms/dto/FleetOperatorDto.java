@@ -5,7 +5,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-import lombok.Builder;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -50,6 +50,10 @@ public class FleetOperatorDto {
     @Size(max = 250, message = "Address can't exceed 250 characters")
     @JsonProperty("address")
     private String address;
+
+    @NotBlank(message = "Description is required")
+    @Size(max = 500, message = "Description can't exceed 500 characters")
+    private String description;
 
 
 }

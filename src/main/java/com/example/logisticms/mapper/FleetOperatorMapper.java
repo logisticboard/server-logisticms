@@ -12,6 +12,7 @@ public class FleetOperatorMapper {
         fleetOperator.setContactEmail(dto.getContactEmail());
         fleetOperator.setAddress(dto.getAddress());
         fleetOperator.setImageUrl(dto.getImageUrl());
+        fleetOperator.setDescription(dto.getDescription());
         return fleetOperator;
     }
 
@@ -24,6 +25,7 @@ public class FleetOperatorMapper {
         fleetOperatorDto.setContactEmail(save.getContactEmail());
         fleetOperatorDto.setAddress(save.getAddress());
         fleetOperatorDto.setImageUrl(save.getImageUrl());
+        fleetOperatorDto.setDescription(save.getDescription());
         return fleetOperatorDto;
     }
 }

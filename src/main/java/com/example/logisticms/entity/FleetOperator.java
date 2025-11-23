@@ -41,6 +41,9 @@ public class FleetOperator extends BaseEntity{
     @Column(nullable = false)
     private String address;
 
+    @Column(nullable = false, length = 500)
+    private String description;
+
 //    @OneToMany(fetch = FetchType.LAZY)
 //    List<Driver> drivers;
 //

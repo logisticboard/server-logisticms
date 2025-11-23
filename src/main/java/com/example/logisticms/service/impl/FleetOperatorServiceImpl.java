@@ -41,4 +41,13 @@ public class FleetOperatorServiceImpl {
                 )
         );
     }
+
+    public FleetOperator updateFleetOperator(FleetOperatorDto fleetOperatorDto, UUID companyId) {
+        FleetOperator fleetOperator = FleetOperatorMapper.toEntity(
+                fleetOperatorDto
+        );
+        fleetOperator.setId(companyId);
+        return fleetOperatorRepository.save(fleetOperator);
+
+    }
 }

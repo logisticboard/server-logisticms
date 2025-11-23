@@ -83,4 +83,20 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(dto);
     }
+
+
+    @ExceptionHandler(UnauthorizedOperationException.class)
+    public ResponseEntity<ApiResponseDTO<?>> handleUnauthorized(UnauthorizedOperationException ex, WebRequest webRequest) {
+        ex.printStackTrace();
+        ApiResponseDTO<Void> dto = ApiResponseDTO.error(
+                webRequest.getDescription(false).replace("uri=", ""),
+                HttpStatus.FORBIDDEN,
+                ex.getMessage(),
+                LocalDateTime.now().toString()
+        );
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(dto);
+    }
+
+
 }
