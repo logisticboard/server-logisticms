@@ -1,7 +1,6 @@
 package com.example.logisticms.repository;
 
 import com.example.logisticms.dto.FleetOperatorRolesEnum;
-import com.example.logisticms.entity.FleetOperator;
 import com.example.logisticms.entity.FleetOperatorMember;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -12,4 +11,6 @@ public interface FleetOperatorMemberRepository extends JpaRepository<FleetOperat
     List<FleetOperatorMember> findByIdUserId(UUID userId);
 
     boolean existsById_FleetOperatorIdAndId_UserIdAndRole(UUID companyId, UUID userId, FleetOperatorRolesEnum fleetOperatorRolesEnum);
+
+    List<FleetOperatorMember> findByIdFleetOperatorId(UUID fleetOperatorId);
 }

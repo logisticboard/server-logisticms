@@ -18,10 +18,14 @@ import java.util.UUID;
 public class FleetOperatorServiceImpl {
     private final FleetOperatorMemberRepository fleetOperatorMemberRepository;
     private final FleetOperatorRepository fleetOperatorRepository;
-    public FleetOperator getFleetOperatorById(UUID userId) {
+    public FleetOperator getFleetOperatorForMember(UUID userId) {
         return fleetOperatorMemberRepository.findById(userId)
                 .orElseThrow(()-> new NoResourceFoundException("Fleet Operator not found for given user"))
                 .getFleetOperator();
+    }
+    public FleetOperator getFleetOperatorById(UUID fleetOperatorId) {
+        return fleetOperatorRepository.findById(fleetOperatorId)
+                .orElseThrow(()-> new NoResourceFoundException("Fleet Operator not found for given id"));
     }
 
     public void createFleetOperatorRoles(List<FleetOperatorRoleCreate> fleetOperatorRoleCreateList) {

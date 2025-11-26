@@ -1,22 +1,26 @@
 package com.example.logisticms.service.impl;
 
-import com.example.logisticms.dto.FleetOperatorDto;
-import com.example.logisticms.dto.FleetOperatorRolesEnum;
+import com.example.logisticms.dto.*;
 import com.example.logisticms.entity.FleetOperator;
 import com.example.logisticms.entity.FleetOperatorMember;
 import com.example.logisticms.entity.FleetOperatorMemberId;
 import com.example.logisticms.mapper.FleetOperatorMapper;
 import com.example.logisticms.repository.FleetOperatorMemberRepository;
+import com.example.logisticms.service.client.LoginMsClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class FleetOperatorRoleServiceImpl {
     private final FleetOperatorMemberRepository fleetOperatorMemberRepository;
+    private final FleetOperatorServiceImpl fleetOperatorService;
+    private final LoginMsClient loginMsClient;
     public void addMemberToFleetOperator(FleetOperator fleetOperator, FleetOperatorRolesEnum roleEnum, UUID userId) {
         FleetOperatorMemberId fleetOperatorMemberId = FleetOperatorMemberId.builder()
                 .fleetOperatorId(fleetOperator.getId())
@@ -42,5 +46,58 @@ public class FleetOperatorRoleServiceImpl {
                 userId,
                 FleetOperatorRolesEnum.ADMIN
         );
+    }
+
+
+    public List<FleetOperatorMembersResponse> getFleetOperatorsMembers(UUID userId, UUID fleetOperatorId) {
+        List<FleetOperatorMember> fleetOperatorMemberList =
+                fleetOperatorMemberRepository.findByIdFleetOperatorId(fleetOperatorId);
+        System.out.println("fleetopeatorid: " + fleetOperatorId);
+        List<UserDetailsDto> userDetails = loginMsClient.getUserDetailsByIds(
+                fleetOperatorMemberList.stream()
+                        .map(member -> member.getId().getUserId())
+                        .toList()
+        );
+        Map<UUID, FleetOperatorRolesEnum> userIdToRoleMap = fleetOperatorMemberList.stream()
+                .collect(Collectors.toMap(
+                        member -> member.getId().getUserId(),
+                        FleetOperatorMember::getRole
+                ));
+        System.out.println(userDetails);
+        System.out.println(userDetails
+                .stream().map(member ->
+                        FleetOperatorMembersResponse.builder()
+                                .role(userIdToRoleMap.get(member.getId()))
+                                .memberEmail(member.getEmail())
+                                .memberName(member.getName())
+                                .build()
+
+
+                ).toList());
+        return userDetails
+                .stream().map(member ->
+                    FleetOperatorMembersResponse.builder()
+                            .role(userIdToRoleMap.get(member.getId()))
+                            .memberEmail(member.getEmail())
+                            .memberName(member.getName())
+                            .build()
+
+
+                ).toList();
+    }
+
+    public void upsertFleetOperatorMemberData(UUID fleetOperatorId, MemberDataUpdateRequest data) {
+        List<UserDetailsDto> userDetailsDtos = loginMsClient.getUserDetailsByEmailIds(
+                List.of(data.getEmail())
+        );
+        FleetOperatorMember fleetOperatorMemberData = FleetOperatorMember.builder()
+                .id(FleetOperatorMemberId.builder()
+                        .fleetOperatorId(fleetOperatorId)
+                        .userId(userDetailsDtos.getFirst().getId())
+                        .build())
+                .role(data.getRole())
+                .fleetOperator(fleetOperatorService.getFleetOperatorById(fleetOperatorId))
+                .build();
+        fleetOperatorMemberRepository.save(fleetOperatorMemberData);
     }
 }

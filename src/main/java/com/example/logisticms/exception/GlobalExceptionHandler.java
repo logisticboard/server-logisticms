@@ -1,6 +1,8 @@
 package com.example.logisticms.exception;
 
 import com.example.logisticms.dto.ApiResponseDTO;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
@@ -25,6 +28,11 @@ public class GlobalExceptionHandler {
                 LocalDateTime.now().toString()
         );
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(dto);
+    }
+
+    @ExceptionHandler(LoginMsException.class)
+    public ResponseEntity<ApiResponseDTO<Void>> handleException(LoginMsException exception, WebRequest webRequest){
+        return ResponseEntity.status(exception.getResponse().getErrorCode()).body(exception.getResponse());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -68,6 +76,29 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
                 .body(dto);
     }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ApiResponseDTO<Void>> handleConstraintViolationException(
+            ConstraintViolationException ex,
+            WebRequest webRequest
+    ) {
+
+        // Collect violation messages into a single readable string
+        String message = ex.getConstraintViolations()
+                .stream()
+                .map(ConstraintViolation::getMessage)
+                .collect(Collectors.joining(", "));
+
+        ApiResponseDTO<Void> dto = ApiResponseDTO.error(
+                webRequest.getDescription(false).replace("uri=", ""),
+                HttpStatus.BAD_REQUEST,
+                message,
+                LocalDateTime.now().toString()
+        );
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(dto);
+    }
+
 
 
 

@@ -39,7 +39,7 @@ public class DriverController {
                 .getContext()
                 .getAuthentication()
                 .getPrincipal()).toString());
-        FleetOperator fleetOperator = fleetOperatorService.getFleetOperatorById(userId);
+        FleetOperator fleetOperator = fleetOperatorService.getFleetOperatorForMember(userId);
         return ApiResponseDTO.<List<DriverDto>>builder()
                 .message("Drivers retrieved successfully")
                 .success(true)

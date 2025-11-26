@@ -1,9 +1,8 @@
 package com.example.logisticms.controller;
 
-import com.example.logisticms.dto.ApiResponseDTO;
-import com.example.logisticms.dto.FleetOperatorDto;
-import com.example.logisticms.dto.FleetOperatorRolesEnum;
+import com.example.logisticms.dto.*;
 import com.example.logisticms.entity.FleetOperator;
+import com.example.logisticms.exception.UnauthorizedOperationException;
 import com.example.logisticms.mapper.FleetOperatorMapper;
 import com.example.logisticms.service.impl.FleetOperatorRoleServiceImpl;
 import com.example.logisticms.service.impl.FleetOperatorServiceImpl;
@@ -71,7 +70,7 @@ public class FleetOperatorController {
                     .success(true)
                     .build();
         }
-        throw new UnsupportedOperationException("User is not authorized to update this Fleet Operator!");
+        throw new UnauthorizedOperationException("User is not authorized to update this Fleet Operator!");
     }
 
 
@@ -87,4 +86,48 @@ public class FleetOperatorController {
                 .success(true)
                 .build();
     }
+
+
+    @GetMapping("/members/{fleetOperatorId}")
+    public ApiResponseDTO<List<FleetOperatorMembersResponse>> getMembersInFleetOperator(
+                                                                @PathVariable @NotBlank
+                                                                @Pattern(
+                                                                        regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+                                                                        message = "companyId must be a valid UUID"
+                                                                )
+                                                                String fleetOperatorId){
+        UUID userId =  UUID.fromString((String)SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal());
+        return ApiResponseDTO.<List<FleetOperatorMembersResponse>>builder()
+                    .message("Company members retrieved successfully")
+                    .data(fleetOperatorRoleService.getFleetOperatorsMembers(userId, UUID.fromString(fleetOperatorId)))
+                    .success(true)
+                    .build();
+    }
+
+    @PostMapping("/members/{fleetOperatorId}")
+    public ApiResponseDTO<Void> createOrUpdateFleetMemberData(@PathVariable @NotBlank
+                                                                  @Pattern(
+                                                                          regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+                                                                          message = "companyId must be a valid UUID"
+                                                                  )
+                                                                  String fleetOperatorId,
+                                                              @RequestBody @Valid MemberDataUpdateRequest data) {
+        UUID userId =  UUID.fromString((String)SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal());
+        if(fleetOperatorRoleService.isUserAdminOfFleetOperator(UUID.fromString(fleetOperatorId), userId)){
+//            TODO: check if admin is conveting to manger then there should be atleast one admin left
+            fleetOperatorRoleService.upsertFleetOperatorMemberData(UUID.fromString(fleetOperatorId), data);
+            return ApiResponseDTO.<Void>builder()
+                    .message("Fleet Operator member data updated successfully")
+                    .success(true)
+                    .build();
+        }
+        throw new UnauthorizedOperationException("User is not authorized to update this Fleet Operator!");
+    }
+
 }
