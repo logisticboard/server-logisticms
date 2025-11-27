@@ -2,9 +2,11 @@ package com.example.logisticms.service.impl;
 
 import com.example.logisticms.dto.FleetOperatorDto;
 import com.example.logisticms.dto.FleetOperatorRoleCreate;
+import com.example.logisticms.dto.TruckDto;
 import com.example.logisticms.entity.FleetOperator;
 import com.example.logisticms.exception.NoResourceFoundException;
 import com.example.logisticms.mapper.FleetOperatorMapper;
+import com.example.logisticms.mapper.TruckMapper;
 import com.example.logisticms.repository.FleetOperatorRepository;
 import com.example.logisticms.repository.FleetOperatorMemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -53,5 +55,14 @@ public class FleetOperatorServiceImpl {
         fleetOperator.setId(companyId);
         return fleetOperatorRepository.save(fleetOperator);
 
+    }
+
+    public List<TruckDto> getTrucksByFleetOperator(UUID fleetOperatorId) {
+        return fleetOperatorRepository.findById(fleetOperatorId)
+                .orElseThrow(()-> new NoResourceFoundException("Fleet Operator not found for given id"))
+                .getTrucks()
+                .stream()
+                .map(TruckMapper::toDto)
+                .toList();
     }
 }

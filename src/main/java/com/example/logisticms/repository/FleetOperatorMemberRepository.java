@@ -13,4 +13,6 @@ public interface FleetOperatorMemberRepository extends JpaRepository<FleetOperat
     boolean existsById_FleetOperatorIdAndId_UserIdAndRole(UUID companyId, UUID userId, FleetOperatorRolesEnum fleetOperatorRolesEnum);
 
     List<FleetOperatorMember> findByIdFleetOperatorId(UUID fleetOperatorId);
+
+    boolean existsById_FleetOperatorIdAndId_UserId(UUID fleetOperatorId, UUID userId);
 }

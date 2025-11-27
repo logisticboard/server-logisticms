@@ -100,4 +100,11 @@ public class FleetOperatorRoleServiceImpl {
                 .build();
         fleetOperatorMemberRepository.save(fleetOperatorMemberData);
     }
+
+    public boolean isUserMemberOfFleetOperator(UUID fleetOperatorId, UUID userId) {
+        return fleetOperatorMemberRepository.existsById_FleetOperatorIdAndId_UserId(
+                fleetOperatorId,
+                userId
+        );
+    }
 }

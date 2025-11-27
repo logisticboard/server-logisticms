@@ -6,6 +6,7 @@ import com.example.logisticms.exception.UnauthorizedOperationException;
 import com.example.logisticms.mapper.FleetOperatorMapper;
 import com.example.logisticms.service.impl.FleetOperatorRoleServiceImpl;
 import com.example.logisticms.service.impl.FleetOperatorServiceImpl;
+import com.example.logisticms.service.impl.TruckServiceImpl;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -24,6 +25,8 @@ import java.util.UUID;
 public class FleetOperatorController {
     private final FleetOperatorServiceImpl fleetOperatorService;
     private final FleetOperatorRoleServiceImpl fleetOperatorRoleService;
+    private final TruckServiceImpl truckService;
+
 
 //    @PostMapping
 //    public ApiResponseDTO<Void> createFleetOperatorRole(@RequestBody List<FleetOperatorRoleCreate> fleetOperatorRoleCreateList){
@@ -128,6 +131,56 @@ public class FleetOperatorController {
                     .build();
         }
         throw new UnauthorizedOperationException("User is not authorized to update this Fleet Operator!");
+    }
+
+
+    @PostMapping("{fleetOperatorId}/trucks")
+    public ApiResponseDTO<TruckDto> createTruck(@PathVariable UUID fleetOperatorId, @RequestBody @Valid TruckDto truckDto) {
+        UUID userId =  UUID.fromString((String)SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal());
+        if(!fleetOperatorRoleService.isUserAdminOfFleetOperator(fleetOperatorId, userId)){
+            throw new UnauthorizedOperationException("User is not authorized to update trucks of this Fleet Operator!");
+        }
+        return ApiResponseDTO.<TruckDto>builder()
+                .message("Driver created successfully")
+                .success(true)
+                .data(truckService.createTruck(truckDto, fleetOperatorId))
+                .build();
+    }
+
+    @PutMapping("{fleetOperatorId}/trucks/{truckId}")
+    public ApiResponseDTO<TruckDto> updateTruck(@PathVariable UUID fleetOperatorId, @PathVariable UUID truckId, @RequestBody TruckDto truckDto) {
+        UUID userId =  UUID.fromString((String)SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal());
+        if(!fleetOperatorRoleService.isUserAdminOfFleetOperator(fleetOperatorId, userId)){
+            throw new UnauthorizedOperationException("User is not authorized to update trucks of this Fleet Operator!");
+        }
+
+        return ApiResponseDTO.<TruckDto>builder()
+                .message("Truck updated successfully")
+                .success(true)
+                .data(truckService.updateTruck(truckId, truckDto, fleetOperatorId))
+                .build();
+    }
+
+    @GetMapping("/{fleetOperatorId}/trucks")
+    public ApiResponseDTO<List<TruckDto>> getTrucksByFleetOperator(@PathVariable UUID fleetOperatorId) {
+        UUID userId =  UUID.fromString((String)SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal());
+        if(!fleetOperatorRoleService.isUserMemberOfFleetOperator(fleetOperatorId, userId)){
+            throw new UnauthorizedOperationException("User is not authorized to view trucks of this Fleet Operator!");
+        }
+        return ApiResponseDTO.<List<TruckDto>>builder()
+                .message("Trucks retrieved successfully")
+                .success(true)
+                .data(fleetOperatorService.getTrucksByFleetOperator(fleetOperatorId))
+                .build();
     }
 
 }

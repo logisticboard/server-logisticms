@@ -4,29 +4,20 @@ package com.example.logisticms.controller;
 
 import com.example.logisticms.dto.ApiResponseDTO;
 import com.example.logisticms.dto.DriverDto;
+import com.example.logisticms.dto.TruckDto;
 import com.example.logisticms.entity.Truck;
 import com.example.logisticms.service.impl.TruckServiceImpl;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/trucks")
 @RequiredArgsConstructor
 public class TruckController {
 
-    private final TruckServiceImpl truckService;
 
-//    @PostMapping
-//    public ApiResponseDTO<Truck> createOrUpdateTruck(@RequestBody Truck truck) {
-//        return ApiResponseDTO.<DriverDto>builder()
-//                .message("Driver created successfully")
-//                .success(true)
-//                .data(truckService.createOrUpdateTruck(truck))
-//                .build();
-//    }
+
+
 
 //    @GetMapping
 //    public List<Truck> getAllTrucks() {

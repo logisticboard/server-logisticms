@@ -47,8 +47,8 @@ public class FleetOperator extends BaseEntity{
 //    @OneToMany(fetch = FetchType.LAZY)
 //    List<Driver> drivers;
 //
-//    @OneToMany(fetch = FetchType.LAZY)
-//    List<Truck> trucks;
+    @OneToMany(mappedBy = "fleetOperator", fetch = FetchType.LAZY)
+    List<Truck> trucks;
 //
 //    @OneToMany(fetch = FetchType.LAZY)
 //    List<FleetOperatorMember> members;

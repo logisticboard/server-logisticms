@@ -1,6 +1,7 @@
 package com.example.logisticms.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
@@ -30,11 +31,16 @@ public class Truck {
 
     private String description;
 
-    @OneToMany
-    @JoinColumn(name = "driver_id")
-    private List<Driver> assignedDriver;
+    @ManyToOne
+    @JoinColumn(name = "fleet_operator_id")
+    @JsonIgnore
+    private FleetOperator fleetOperator;
 
-    @OneToMany(mappedBy = "truck", cascade = CascadeType.ALL)
-    private List<Shipment> shipments;
+//    @OneToMany
+//    @JoinColumn(name = "driver_id")
+//    private List<Driver> assignedDriver;
+
+//    @OneToMany(mappedBy = "truck", cascade = CascadeType.ALL)
+//    private List<Shipment> shipments;
 }
 
