@@ -10,8 +10,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -20,6 +19,7 @@ public class Truck {
     @Id
     @UuidGenerator(style = UuidGenerator.Style.TIME)
     @Column(updatable = false, nullable = false)
+    @GeneratedValue
     private UUID id;
 
     private String registrationNumber;
@@ -31,16 +31,20 @@ public class Truck {
 
     private String description;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fleet_operator_id")
     @JsonIgnore
+    @ToString.Exclude
     private FleetOperator fleetOperator;
 
-//    @OneToMany
-//    @JoinColumn(name = "driver_id")
-//    private List<Driver> assignedDriver;
+    @OneToMany(mappedBy = "truck", fetch = FetchType.LAZY)
+    @ToString.Exclude
+    @JsonIgnore
+    private List<Driver> assignedDriver;
 
-//    @OneToMany(mappedBy = "truck", cascade = CascadeType.ALL)
-//    private List<Shipment> shipments;
+    @OneToMany(mappedBy = "truck", cascade = CascadeType.ALL)
+    @ToString.Exclude
+    @JsonIgnore
+    private List<Shipment> shipments;
 }
 

@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -33,5 +34,8 @@ public class TruckDto {
 
     @NotNull(message = "Truck status is required")
     private TruckStatus truckStatus;
+
+    @NotNull
+    private List<DriverDto> drivers;
 
 }

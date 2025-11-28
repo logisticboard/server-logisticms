@@ -20,8 +20,8 @@ public class FleetOperatorMember {
     @EmbeddedId
     private FleetOperatorMemberId id;
 
-    @ManyToOne
-    @MapsId("fleetOperatorId")  // maps fleetOperatorId from composite key
+    @ManyToOne(fetch = FetchType.LAZY)
+    @MapsId("fleetOperatorId")
     @JoinColumn(name = "fleet_operator_id")
     private FleetOperator fleetOperator;
 

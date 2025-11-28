@@ -2,25 +2,27 @@ package com.example.logisticms.entity;
 
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Entity
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @EqualsAndHashCode(callSuper = true)
-@ToString
 public class Driver extends BaseEntity {
 
     @Id
+    @UuidGenerator(style = UuidGenerator.Style.TIME)
     @Column(updatable = false, nullable = false)
+    @GeneratedValue
     private UUID id;
 
     private String name;
@@ -32,13 +34,20 @@ public class Driver extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private DriverStatus status; // AVAILABLE, ON_TRIP, OFF_DUTY
 
-    private Double currentLat;
-    private Double currentLon;
+    @Column(precision = 9, scale = 6)
+    private BigDecimal currentLat;
 
-    @ManyToOne
+    @Column(precision = 9, scale = 6)
+    private BigDecimal currentLon;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
+    @ToString.Exclude
     private Truck truck;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
+    @ToString.Exclude
     private FleetOperator fleetOperator;
 }
 

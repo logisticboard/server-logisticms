@@ -1,5 +1,6 @@
 package com.example.logisticms.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,6 +22,7 @@ public class FleetOperator extends BaseEntity{
     @Id
     @UuidGenerator(style = UuidGenerator.Style.TIME)
     @Column(updatable = false, nullable = false)
+    @GeneratedValue
     private UUID id;
 
     @Column(nullable = false)
@@ -44,14 +46,17 @@ public class FleetOperator extends BaseEntity{
     @Column(nullable = false, length = 500)
     private String description;
 
-//    @OneToMany(fetch = FetchType.LAZY)
-//    List<Driver> drivers;
-//
     @OneToMany(mappedBy = "fleetOperator", fetch = FetchType.LAZY)
+    @JsonIgnore
+    List<Driver> drivers;
+
+    @OneToMany(mappedBy = "fleetOperator", fetch = FetchType.LAZY)
+    @JsonIgnore
     List<Truck> trucks;
-//
-//    @OneToMany(fetch = FetchType.LAZY)
-//    List<FleetOperatorMember> members;
+
+    @OneToMany(mappedBy = "fleetOperator", fetch = FetchType.LAZY)
+    @JsonIgnore
+    List<FleetOperatorMember> members;
 
 }
 

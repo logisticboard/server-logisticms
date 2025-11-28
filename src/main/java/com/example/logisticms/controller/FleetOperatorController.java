@@ -1,6 +1,7 @@
 package com.example.logisticms.controller;
 
 import com.example.logisticms.dto.*;
+import com.example.logisticms.entity.Driver;
 import com.example.logisticms.entity.FleetOperator;
 import com.example.logisticms.exception.UnauthorizedOperationException;
 import com.example.logisticms.mapper.FleetOperatorMapper;
@@ -143,6 +144,7 @@ public class FleetOperatorController {
         if(!fleetOperatorRoleService.isUserAdminOfFleetOperator(fleetOperatorId, userId)){
             throw new UnauthorizedOperationException("User is not authorized to update trucks of this Fleet Operator!");
         }
+//        TODO: add driver assignment through here
         return ApiResponseDTO.<TruckDto>builder()
                 .message("Driver created successfully")
                 .success(true)
@@ -159,7 +161,7 @@ public class FleetOperatorController {
         if(!fleetOperatorRoleService.isUserAdminOfFleetOperator(fleetOperatorId, userId)){
             throw new UnauthorizedOperationException("User is not authorized to update trucks of this Fleet Operator!");
         }
-
+//TODO: add driver assignment through here
         return ApiResponseDTO.<TruckDto>builder()
                 .message("Truck updated successfully")
                 .success(true)
@@ -180,6 +182,73 @@ public class FleetOperatorController {
                 .message("Trucks retrieved successfully")
                 .success(true)
                 .data(fleetOperatorService.getTrucksByFleetOperator(fleetOperatorId))
+                .build();
+    }
+
+    @GetMapping("/{fleetOperatorId}/drivers/unassigned")
+    public ApiResponseDTO<List<DriverDto>> getUnAssignedDriverByFleetOperator(@PathVariable UUID fleetOperatorId) {
+        UUID userId =  UUID.fromString((String)SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal());
+        if(!fleetOperatorRoleService.isUserMemberOfFleetOperator(fleetOperatorId, userId)){
+            throw new UnauthorizedOperationException("User is not authorized to view trucks of this Fleet Operator!");
+        }
+        return ApiResponseDTO.<List<DriverDto>>builder()
+                .message("Trucks retrieved successfully")
+                .success(true)
+                .data(fleetOperatorService.getUnAssignedDriverByFleetOperator(fleetOperatorId))
+                .build();
+    }
+
+    @PostMapping("/{fleetOperatorId}/drivers")
+    public ApiResponseDTO<DriverDto> createDriver(@PathVariable UUID fleetOperatorId, @RequestBody @Valid DriverDto driverDto) {
+        UUID userId =  UUID.fromString((String)SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal());
+        if(!fleetOperatorRoleService.isUserAdminOfFleetOperator(fleetOperatorId, userId)){
+            throw new UnauthorizedOperationException("User is not authorized to update drivers of this Fleet Operator!");
+        }
+        return ApiResponseDTO.<DriverDto>builder()
+                .message("Driver created successfully")
+                .success(true)
+                .data(fleetOperatorService.createDriver(driverDto, fleetOperatorId))
+                .build();
+    }
+
+    @PutMapping("/{fleetOperatorId}/drivers/{driverId}")
+    public ApiResponseDTO<DriverDto> updateDriver(@PathVariable UUID fleetOperatorId,
+                                                  @PathVariable UUID driverId,
+                                                  @RequestBody @Valid DriverDto driverDto) {
+        UUID userId =  UUID.fromString((String)SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal());
+//        TODO: in future driver can also update his own data(only name, phone number, license number) so need to handle that case
+        if(!fleetOperatorRoleService.isUserAdminOfFleetOperator(fleetOperatorId, userId)){
+            throw new UnauthorizedOperationException("User is not authorized to update drivers of this Fleet Operator!");
+        }
+        return ApiResponseDTO.<DriverDto>builder()
+                .message("Driver updated successfully")
+                .success(true)
+                .data(fleetOperatorService.updateDriver(driverId, driverDto, fleetOperatorId))
+                .build();
+    }
+
+    @GetMapping("/{fleetOperatorId}/drivers")
+    public ApiResponseDTO<List<DriverDto>> getDriversByFleetOperator(@PathVariable UUID fleetOperatorId) {
+        UUID userId =  UUID.fromString((String)SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal());
+        if(!fleetOperatorRoleService.isUserMemberOfFleetOperator(fleetOperatorId, userId)){
+            throw new UnauthorizedOperationException("User is not authorized to view drivers of this Fleet Operator!");
+        }
+        return ApiResponseDTO.<List<DriverDto>>builder()
+                .message("Drivers retrieved successfully")
+                .success(true)
+                .data(fleetOperatorService.getDriversByFleetOperator(fleetOperatorId))
                 .build();
     }
 

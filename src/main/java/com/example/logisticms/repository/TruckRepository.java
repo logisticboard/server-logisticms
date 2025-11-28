@@ -3,7 +3,13 @@ package com.example.logisticms.repository;
 
 import com.example.logisticms.entity.Truck;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
-public interface TruckRepository extends JpaRepository<Truck, UUID> {}
+public interface TruckRepository extends JpaRepository<Truck, UUID> {
+    @Query("SELECT t FROM Truck t WHERE t.fleetOperator.id = :fleetOperatorId AND t.assignedDriver IS EMPTY")
+    List<Truck> findUnassignedTrucks(UUID fleetOperatorId);
+}
