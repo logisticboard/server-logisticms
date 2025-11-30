@@ -42,6 +42,7 @@ public class TruckServiceImpl {
                 .orElseThrow(() -> new NoResourceFoundException("Truck not found with ID: " + id));
     }
 
+
 //    public Truck updateTruck(Long id, Truck updatedTruck) {
 //        Truck existing = getTruckById(id);
 //        existing.setModel(updatedTruck.getModel());
@@ -146,6 +147,12 @@ public class TruckServiceImpl {
                         .build()).toList()
         );
         return responseTruckDto;
+    }
+
+    public Truck getTruckByFleetOperatorIdAndTruckId(UUID fleetOperatorId, UUID truckId) {
+        return truckRepository.findByIdAndFleetOperatorId(truckId, fleetOperatorId)
+                .orElseThrow(() -> new NoResourceFoundException("Truck not found with ID: " + truckId +
+                        " for Fleet Operator ID: " + fleetOperatorId));
     }
 
 

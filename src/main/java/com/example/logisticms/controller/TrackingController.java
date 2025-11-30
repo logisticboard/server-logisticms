@@ -12,8 +12,8 @@ import java.util.List;
 @RequestMapping("/api/tracking")
 public class TrackingController {
 
-    @Autowired
-    private TrackingServiceImpl trackingService;
+//    @Autowired
+//    private TrackingServiceImpl trackingService;
 
 //    @PostMapping("/driver/{driverId}/shipment/{shipmentId}")
 //    public LocationUpdate addLocationUpdate(@PathVariable Long driverId,
@@ -23,9 +23,9 @@ public class TrackingController {
 //        return trackingService.addLocationUpdate(driverId, shipmentId, lat, lon);
 //    }
 
-    @GetMapping("/shipment/{shipmentId}")
-    public List<LocationUpdate> getShipmentTracking(@PathVariable Long shipmentId) {
-        return trackingService.getShipmentTracking(shipmentId);
-    }
+//    @GetMapping("/shipment/{shipmentId}")
+//    public List<LocationUpdate> getShipmentTracking(@PathVariable Long shipmentId) {
+//        return trackingService.getShipmentTracking(shipmentId);
+//    }
 }
 
