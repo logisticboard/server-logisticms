@@ -38,7 +38,6 @@ public class ShipmentCreateRequest {
     @PositiveOrZero(message = "Estimated cost cannot be negative")
     private Double shipmentTotalEstimatedCost; // changed from String → Double
 
-    @NotNull(message = "Truck ID is required")
     private UUID truckId;
 
     @Size(max = 500, message = "Special instructions cannot exceed 500 characters")

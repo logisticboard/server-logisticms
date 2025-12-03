@@ -1,5 +1,6 @@
 package com.example.logisticms.entity;
 
+import com.example.logisticms.entity.enums.ShipmentStatus;
 import jakarta.persistence.*;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
@@ -63,10 +64,20 @@ public class Shipment {
     @Column(length = 500)
     private String shipmentSpecialInstructions;
 
+    @NotNull(message = "Shipment status is required")
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ShipmentStatus shipmentStatus;
+
     @NotNull(message = "Truck reference is required")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "truck_id", nullable = false)
     private Truck truck;
+
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "fleet_operator_id", nullable = false)
+    private FleetOperator fleetOperator;
 
     @NotEmpty(message = "At least one contact detail is required")
     @ElementCollection

@@ -1,5 +1,6 @@
 package com.example.logisticms.dto;
 
+import com.example.logisticms.entity.enums.ShipmentStatus;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
@@ -25,6 +26,7 @@ public class ShipmentCreateResponse {
     private Double shipmentTotalEstimatedCost; // changed from String → Double
     private String truckId;
     private String shipmentSpecialInstructions;
+    private ShipmentStatus shipmentStatus;
     private List<ShipmentCreateRequest.ContactDetailsRequest> contactDetails;
 
     @Data

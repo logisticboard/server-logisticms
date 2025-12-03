@@ -2,10 +2,9 @@ package com.example.logisticms.mapper;
 
 import com.example.logisticms.dto.ShipmentCreateRequest;
 import com.example.logisticms.dto.ShipmentCreateResponse;
-import com.example.logisticms.entity.ContactDetails;
-import com.example.logisticms.entity.Location;
-import com.example.logisticms.entity.Shipment;
-import com.example.logisticms.entity.Truck;
+import com.example.logisticms.dto.ShipmentSummaryResponse;
+import com.example.logisticms.entity.*;
+import com.example.logisticms.entity.enums.ShipmentStatus;
 
 import java.util.List;
 
@@ -13,7 +12,7 @@ public class ShipmentMapper {
     private ShipmentMapper() {
         // Private constructor to prevent instantiation
     }
-    public static Shipment toEntity(ShipmentCreateRequest request, Truck truck) {
+    public static Shipment toEntity(ShipmentCreateRequest request, Truck truck, ShipmentStatus status, FleetOperator fleetOperator) {
         Location locationPickup = toEntityLocation(request.getPickupLocation());
         Location locationDelivery = toEntityLocation(request.getDeliveryLocation());
         List<ContactDetails> contactDetailsList = toEntityContactList(request.getContactDetails());
@@ -25,6 +24,8 @@ public class ShipmentMapper {
                 .shipmentWeight(request.getShipmentWeight())
                 .shipmentTotalEstimatedCost(request.getShipmentTotalEstimatedCost())
                 .truck(truck)
+                .fleetOperator(fleetOperator)
+                .shipmentStatus(status)
                 .shipmentSpecialInstructions(request.getShipmentSpecialInstructions())
                 .contactDetails(contactDetailsList)
                 .build();
@@ -70,8 +71,23 @@ public class ShipmentMapper {
                 .shipmentWeight(shipmentResponse.getShipmentWeight())
                 .shipmentTotalEstimatedCost(shipmentResponse.getShipmentTotalEstimatedCost())
                 .truckId(shipmentResponse.getTruck().getId().toString())
+                .shipmentStatus(shipmentResponse.getShipmentStatus())
                 .shipmentSpecialInstructions(shipmentResponse.getShipmentSpecialInstructions())
                 .contactDetails(toDtoContactList(shipmentResponse.getContactDetails()))
                 .build();
     }
+
+    public static ShipmentSummaryResponse.Shipment toShipmentSummaryShipmentResponse(Shipment shipment) {
+        return ShipmentSummaryResponse.Shipment.builder()
+                .shipmentId(shipment.getId())
+                .shipmentName(shipment.getShipmentName())
+                .pickupLocationAddress(shipment.getPickupLocation().getAddress())
+                .deliveryLocationAddress(shipment.getDeliveryLocation().getAddress())
+                .shipmentPickupDate(shipment.getPickupDate())
+                .shipmentStatus(shipment.getShipmentStatus())
+                .shipmentWeight(shipment.getShipmentWeight())
+                .shipmentCarriedBy(shipment.getTruck().getRegistrationNumber())
+                .build();
+    }
+
 }
