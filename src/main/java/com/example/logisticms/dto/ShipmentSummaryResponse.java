@@ -28,6 +28,7 @@ public class ShipmentSummaryResponse {
     public static class Shipment{
         private UUID shipmentId;
         private String shipmentName;
+        private String shipmentFormalName;
         private String pickupLocationAddress;
         private String deliveryLocationAddress;
         private ShipmentStatus shipmentStatus;

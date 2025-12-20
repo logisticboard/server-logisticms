@@ -3,25 +3,28 @@ package com.example.logisticms.service.impl;
 
 import com.example.logisticms.dto.ApiResponseDTO;
 import com.example.logisticms.dto.DriverDto;
+import com.example.logisticms.dto.DriverShipment;
+import com.example.logisticms.dto.ShipmentSummaryResponse;
 import com.example.logisticms.entity.Driver;
 import com.example.logisticms.entity.DriverStatus;
 import com.example.logisticms.entity.FleetOperator;
+import com.example.logisticms.entity.Truck;
 import com.example.logisticms.mapper.DriverMapper;
+import com.example.logisticms.mapper.ShipmentMapper;
 import com.example.logisticms.repository.DriverRepository;
+import com.example.logisticms.repository.ShipmentRepository;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Service
+@AllArgsConstructor
 public class DriverServiceImpl {
 
     private final DriverRepository driverRepository;
+    private final ShipmentRepository shipmentRepository;
 
-    public DriverServiceImpl(DriverRepository driverRepository) {
-        this.driverRepository = driverRepository;
-    }
 
     public DriverDto createOrUpdateDriver(DriverDto driverDto, UUID userId) {
         Driver driver = DriverMapper.toEntity(driverDto);
@@ -60,6 +63,20 @@ public class DriverServiceImpl {
                 .map(DriverMapper::toDto)
                 .toList();
 
+    }
+
+    public List<DriverShipment> getAllShipmentsForDriver(String phoneNumber) {
+        List<DriverShipment> shipments =  new ArrayList<>();
+        List<DriverShipment.ShipmentProgress> shipmentProgresses = Collections.emptyList();
+        for(Driver driver : driverRepository.findByPhoneNumber(phoneNumber)) {
+            if(driver.getTruck() != null) {
+                 shipments.addAll(driver.getTruck().getShipments()
+                        .stream()
+                        .map(shipment -> ShipmentMapper.toDriverShipmentDto(shipment, driver.getFleetOperator().getName(), shipmentProgresses))
+                        .toList());
+            }
+        }
+        return shipments;
     }
 
 //    public Driver updateDriver(Long id, Driver updatedDriver) {

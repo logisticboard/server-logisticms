@@ -27,6 +27,8 @@ public class Driver extends BaseEntity {
 
     private String name;
 
+    @NotNull(message = "Phone number is required")
+    @Column(nullable = false)
     private String phoneNumber;
 
     private String licenseNumber;

@@ -29,6 +29,10 @@ public class Shipment {
     @Column(nullable = false)
     private String shipmentName;
 
+    @NotBlank(message = "Shipment formal name is required")
+    @Column(nullable = false)
+    private String shipmentFormalName;
+
     @NotNull(message = "Pickup date is required")
     private LocalDateTime pickupDate;
 
@@ -69,9 +73,8 @@ public class Shipment {
     @Column(nullable = false)
     private ShipmentStatus shipmentStatus;
 
-    @NotNull(message = "Truck reference is required")
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "truck_id", nullable = false)
+    @JoinColumn(name = "truck_id")
     private Truck truck;
 
 

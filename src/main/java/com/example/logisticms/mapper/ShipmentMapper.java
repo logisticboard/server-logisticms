@@ -1,12 +1,15 @@
 package com.example.logisticms.mapper;
 
+import com.example.logisticms.dto.DriverShipment;
 import com.example.logisticms.dto.ShipmentCreateRequest;
 import com.example.logisticms.dto.ShipmentCreateResponse;
 import com.example.logisticms.dto.ShipmentSummaryResponse;
 import com.example.logisticms.entity.*;
 import com.example.logisticms.entity.enums.ShipmentStatus;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class ShipmentMapper {
     private ShipmentMapper() {
@@ -18,6 +21,7 @@ public class ShipmentMapper {
         List<ContactDetails> contactDetailsList = toEntityContactList(request.getContactDetails());
         return Shipment.builder()
                 .shipmentName(request.getShipmentName())
+                .shipmentFormalName(generateShipmentCreateFormalNameCreate(fleetOperator.getName()))
                 .pickupDate(request.getPickupDate())
                 .pickupLocation(locationPickup)
                 .deliveryLocation(locationDelivery)
@@ -30,6 +34,23 @@ public class ShipmentMapper {
                 .contactDetails(contactDetailsList)
                 .build();
     }
+
+    public static String generateShipmentCreateFormalNameCreate(String fleetOperatorName) {
+        String code;
+        if (fleetOperatorName == null || fleetOperatorName.trim().isEmpty()) {
+            code = "AAAA";
+        } else {
+            String trimmed = fleetOperatorName.trim().replaceAll("\\s+", "");
+            code = trimmed.length() >= 4
+                    ? trimmed.substring(0, 4).toUpperCase()
+                    : String.format("%-4s", trimmed).replace(' ', 'A').toUpperCase();
+        }
+
+        long millis = System.currentTimeMillis();
+
+        return "#" + code + "-" + millis;
+    }
+
 
     private static List<ContactDetails> toEntityContactList(List<ShipmentCreateRequest.ContactDetailsRequest> request) {
         return request.stream()
@@ -62,6 +83,7 @@ public class ShipmentMapper {
     }
 
     public static ShipmentCreateResponse toShipmentCreateResponse(Shipment shipmentResponse) {
+        String truckId = shipmentResponse.getTruck() != null ? shipmentResponse.getTruck().getId().toString() : null;
         return ShipmentCreateResponse.builder()
                 .shipmentId(shipmentResponse.getId())
                 .shipmentName(shipmentResponse.getShipmentName())
@@ -70,7 +92,7 @@ public class ShipmentMapper {
                 .deliveryLocation(shipmentResponse.getDeliveryLocation().getAddress())
                 .shipmentWeight(shipmentResponse.getShipmentWeight())
                 .shipmentTotalEstimatedCost(shipmentResponse.getShipmentTotalEstimatedCost())
-                .truckId(shipmentResponse.getTruck().getId().toString())
+                .truckId(truckId)
                 .shipmentStatus(shipmentResponse.getShipmentStatus())
                 .shipmentSpecialInstructions(shipmentResponse.getShipmentSpecialInstructions())
                 .contactDetails(toDtoContactList(shipmentResponse.getContactDetails()))
@@ -81,12 +103,29 @@ public class ShipmentMapper {
         return ShipmentSummaryResponse.Shipment.builder()
                 .shipmentId(shipment.getId())
                 .shipmentName(shipment.getShipmentName())
+                .shipmentFormalName(shipment.getShipmentFormalName())
                 .pickupLocationAddress(shipment.getPickupLocation().getAddress())
                 .deliveryLocationAddress(shipment.getDeliveryLocation().getAddress())
                 .shipmentPickupDate(shipment.getPickupDate())
                 .shipmentStatus(shipment.getShipmentStatus())
                 .shipmentWeight(shipment.getShipmentWeight())
-                .shipmentCarriedBy(shipment.getTruck().getRegistrationNumber())
+                .shipmentCarriedBy(shipment.getTruck() != null ? shipment.getTruck().getRegistrationNumber(): "Unassigned")
+                .build();
+    }
+
+    public static DriverShipment toDriverShipmentDto(Shipment shipment, String fleetOperatorName, List<DriverShipment.ShipmentProgress> shipmentProgresses) {
+        return DriverShipment.builder()
+                .shipmentId(shipment.getShipmentFormalName())
+                .shipmentName(shipment.getShipmentName())
+                .pickupLocationAddress(shipment.getPickupLocation().getAddress())
+                .deliveryLocationAddress(shipment.getDeliveryLocation().getAddress())
+                .shipmentPickupDate(shipment.getPickupDate())
+                .shipmentStatus(shipment.getShipmentStatus())
+                .shipmentWeight(shipment.getShipmentWeight())
+                .shipmentSpecialInstructions(shipment.getShipmentSpecialInstructions())
+                .contactDetails(toDtoContactList(shipment.getContactDetails()))
+                .fleetOperatorName(fleetOperatorName)
+                .shipmentProgressList(shipmentProgresses)
                 .build();
     }
 

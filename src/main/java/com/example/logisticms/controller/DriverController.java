@@ -2,10 +2,14 @@ package com.example.logisticms.controller;
 
 import com.example.logisticms.dto.ApiResponseDTO;
 import com.example.logisticms.dto.DriverDto;
+import com.example.logisticms.dto.DriverShipment;
+import com.example.logisticms.dto.ShipmentSummaryResponse;
 import com.example.logisticms.entity.FleetOperator;
 import com.example.logisticms.service.impl.DriverServiceImpl;
 import com.example.logisticms.service.impl.FleetOperatorServiceImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,7 +17,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/drivers")
+@RequestMapping("/api/v1/drivers")
 @RequiredArgsConstructor
 public class DriverController {
     private final DriverServiceImpl driverService;
@@ -32,6 +36,20 @@ public class DriverController {
 //                .data(driverService.createOrUpdateDriver(driver, userId))
 //                .build();
 //    }
+
+    @PreAuthorize("hasRole('DRIVER')")
+    @GetMapping("/shipments")
+    public ApiResponseDTO<List<DriverShipment>> getAllShipmentsForFleetOperatorDriver() {
+        String phoneNumber = (SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal()).toString();
+        return ApiResponseDTO.<List<DriverShipment>>builder()
+                .message("Shipments retrieved successfully")
+                .success(true)
+                .data(driverService.getAllShipmentsForDriver(phoneNumber))
+                .build();
+    }
 
     @GetMapping
     public ApiResponseDTO<List<DriverDto>> getAllDrivers() {

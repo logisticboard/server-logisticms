@@ -60,6 +60,8 @@ public class ShipmentController {
         throw new UnauthorizedOperationException("Only admins can create shipments for a fleet operator");
     }
 
+
+
     @GetMapping("/{fleetOperatorId}/shipments")
     public ApiResponseDTO<ShipmentSummaryResponse> getAllShipmentsSummary(@PathVariable UUID fleetOperatorId) {
         UUID userId =  UUID.fromString((String) SecurityContextHolder

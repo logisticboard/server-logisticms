@@ -3,6 +3,7 @@ package com.example.logisticms.repository;
 
 import com.example.logisticms.dto.ShipmentSummaryResponse;
 import com.example.logisticms.entity.Shipment;
+import com.example.logisticms.entity.Truck;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Collection;
@@ -11,4 +12,6 @@ import java.util.UUID;
 
 public interface ShipmentRepository extends JpaRepository<Shipment, UUID> {
     List<Shipment> findAllByFleetOperator_Id(UUID fleetOperatorId);
+
+    List<Shipment> findByTruck(Truck truck);
 }

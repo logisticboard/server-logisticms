@@ -18,6 +18,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class ShipmentCreateResponse {
     private UUID shipmentId;
+    private String shipmentFormalName;
     private String shipmentName;
     private LocalDateTime pickupDate;
     private String pickupLocation;

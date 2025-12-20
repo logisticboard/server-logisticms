@@ -9,6 +9,7 @@ import com.example.logisticms.entity.DriverStatus;
 import com.example.logisticms.entity.FleetOperator;
 import com.example.logisticms.entity.Truck;
 import com.example.logisticms.exception.NoResourceFoundException;
+import com.example.logisticms.exception.UnauthorizedOperationException;
 import com.example.logisticms.mapper.DriverMapper;
 import com.example.logisticms.mapper.FleetOperatorMapper;
 import com.example.logisticms.mapper.TruckMapper;
@@ -104,6 +105,10 @@ public class FleetOperatorServiceImpl {
     }
 
     public DriverDto createDriver(DriverDto driverDto, UUID fleetOperatorId) {
+        FleetOperator fleetOperator = getFleetOperatorById(fleetOperatorId);
+        if(driverRepository.existsByFleetOperatorAndPhoneNumber(fleetOperator, driverDto.getPhoneNumber())) {
+            throw new UnauthorizedOperationException("Driver with given phone number already exists for this fleet operator");
+        }
 
         Truck  truck = null;
         if(driverDto.getAssignedTruck() != null)
@@ -114,9 +119,7 @@ public class FleetOperatorServiceImpl {
                         .licenseNumber(driverDto.getLicenseNumber())
                         .phoneNumber(driverDto.getPhoneNumber())
                         .status(DriverStatus.AVAILABLE)
-                        .fleetOperator(
-                                getFleetOperatorById(fleetOperatorId)
-                        )
+                        .fleetOperator(fleetOperator)
                         .truck(truck)
                         .build());
         return DriverDto.builder()
