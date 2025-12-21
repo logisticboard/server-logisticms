@@ -14,10 +14,11 @@ import java.util.UUID;
 @Entity
 @Table(name = "shipments")
 @Data
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Shipment {
+public class Shipment extends BaseEntity {
 
     @Id
     @UuidGenerator(style = UuidGenerator.Style.TIME)

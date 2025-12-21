@@ -113,8 +113,9 @@ public class ShipmentMapper {
                 .build();
     }
 
-    public static DriverShipment toDriverShipmentDto(Shipment shipment, String fleetOperatorName, List<DriverShipment.ShipmentProgress> shipmentProgresses) {
+    public static DriverShipment toDriverShipmentDto(Shipment shipment, String fleetOperatorName) {
         return DriverShipment.builder()
+                .shipmentUid(shipment.getId())
                 .shipmentId(shipment.getShipmentFormalName())
                 .shipmentName(shipment.getShipmentName())
                 .pickupLocationAddress(shipment.getPickupLocation().getAddress())
@@ -125,7 +126,6 @@ public class ShipmentMapper {
                 .shipmentSpecialInstructions(shipment.getShipmentSpecialInstructions())
                 .contactDetails(toDtoContactList(shipment.getContactDetails()))
                 .fleetOperatorName(fleetOperatorName)
-                .shipmentProgressList(shipmentProgresses)
                 .build();
     }
 

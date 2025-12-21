@@ -1,6 +1,7 @@
 package com.example.logisticms.repository;
 
 import com.example.logisticms.dto.DriverDto;
+import com.example.logisticms.dto.TrackingDto;
 import com.example.logisticms.entity.Driver;
 import com.example.logisticms.entity.FleetOperator;
 import org.apache.logging.log4j.util.Lazy;

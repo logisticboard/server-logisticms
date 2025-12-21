@@ -5,8 +5,10 @@ import com.example.logisticms.dto.ShipmentCreateRequest;
 import com.example.logisticms.dto.ShipmentSummaryResponse;
 import com.example.logisticms.entity.*;
 import com.example.logisticms.entity.enums.ShipmentStatus;
+import com.example.logisticms.exception.NoResourceFoundException;
 import com.example.logisticms.mapper.ShipmentMapper;
 import com.example.logisticms.repository.ShipmentRepository;
+import com.example.logisticms.repository.TrackingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,12 +20,7 @@ import java.util.UUID;
 public class ShipmentServiceImpl {
 
     private final ShipmentRepository shipmentRepository;
-
-//    @Autowired
-//    private TruckRepository truckRepository;
-
-//    @Autowired
-//    private DriverRepository driverRepository;
+    private final TrackingRepository trackingRepository;
 
     public Shipment createShipment(ShipmentCreateRequest shipment, Truck truck, FleetOperator fleetOperator) {
         ShipmentStatus shipmentStatus = ShipmentStatus.CREATED;
@@ -31,8 +28,15 @@ public class ShipmentServiceImpl {
             shipmentStatus = ShipmentStatus.READY_FOR_DISPATCH;
         else if(truck != null)
             shipmentStatus = ShipmentStatus.TRUCK_ASSIGNED;
-
-        return shipmentRepository.save(ShipmentMapper.toEntity(shipment, truck, shipmentStatus, fleetOperator));
+        Shipment shipmentSavedEntity = shipmentRepository.save(ShipmentMapper.toEntity(shipment, truck, shipmentStatus, fleetOperator));
+        trackingRepository.save(Tracking.builder()
+                .shipment(shipmentSavedEntity)
+                .heading("Shipment Created")
+                .description("Shipment has been created.")
+                .timestamp(shipmentSavedEntity.getCreatedAt())
+                .shipmentStatus(shipmentStatus)
+                .build());
+        return shipmentSavedEntity;
     }
 
     public ShipmentSummaryResponse getAllShipmentsSummary(UUID fleetOperatorId) {
@@ -48,47 +52,18 @@ public class ShipmentServiceImpl {
                 .build();
     }
 
-//    public List<Shipment> getAllShipments() {
-//        return shipmentRepository.findAll();
-//    }
+    public void updateShipmentStatus(ShipmentStatus shipmentStatus, UUID shipmentId){
+        Shipment shipmentSavedEntity = shipmentRepository.findById(shipmentId).orElseThrow(() -> new NoResourceFoundException("Shipment not found with ID: " + shipmentId));
+        shipmentSavedEntity.setShipmentStatus(shipmentStatus);
+        shipmentRepository.save(shipmentSavedEntity);
+        trackingRepository.save(Tracking.builder()
+                .shipment(shipmentSavedEntity)
+                .heading(ShipmentStatusUtil.getHeading(shipmentStatus))
+                .description(ShipmentStatusUtil.getDescription(shipmentStatus))
+                .timestamp(shipmentSavedEntity.getCreatedAt())
+                .shipmentStatus(shipmentStatus)
+                .build());
+    }
 
-//    public Shipment getShipmentById(Long id) {
-//        return shipmentRepository.findById(id)
-//                .orElseThrow(() -> new RuntimeException("Shipment not found with ID: " + id));
-//    }
-
-//    public Shipment updateStatus(Long id, String status) {
-//        Shipment shipment = getShipmentById(id);
-//        shipment.setStatus(ShipmentStatus.valueOf(status.toUpperCase()));
-//
-//        if (shipment.getStatus() == ShipmentStatus.DELIVERED) {
-//            shipment.setActualDeliveryDate(LocalDateTime.now());
-//        }
-//
-//        return shipmentRepository.save(shipment);
-//    }
-
-//    public Shipment assignTruckAndDriver(Long shipmentId, Long truckId, Long driverId) {
-//        Shipment shipment = getShipmentById(shipmentId);
-//        Truck truck = truckRepository.findById(truckId)
-//                .orElseThrow(() -> new RuntimeException("Truck not found"));
-//        Driver driver = driverRepository.findById(driverId)
-//                .orElseThrow(() -> new RuntimeException("Driver not found"));
-//
-//        shipment.setTruck(truck);
-//        shipment.setDriver(driver);
-//
-//        truck.setStatus(TruckStatus.ON_TRIP);
-//        driver.setStatus(DriverStatus.ON_TRIP);
-//
-//        truckRepository.save(truck);
-//        driverRepository.save(driver);
-//
-//        return shipmentRepository.save(shipment);
-//    }
-
-//    public void deleteShipment(Long id) {
-//        shipmentRepository.deleteById(id);
-//    }
 }
 

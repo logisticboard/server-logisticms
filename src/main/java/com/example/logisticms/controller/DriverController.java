@@ -1,9 +1,6 @@
 package com.example.logisticms.controller;
 
-import com.example.logisticms.dto.ApiResponseDTO;
-import com.example.logisticms.dto.DriverDto;
-import com.example.logisticms.dto.DriverShipment;
-import com.example.logisticms.dto.ShipmentSummaryResponse;
+import com.example.logisticms.dto.*;
 import com.example.logisticms.entity.FleetOperator;
 import com.example.logisticms.service.impl.DriverServiceImpl;
 import com.example.logisticms.service.impl.FleetOperatorServiceImpl;
@@ -23,19 +20,6 @@ public class DriverController {
     private final DriverServiceImpl driverService;
     private final FleetOperatorServiceImpl fleetOperatorService;
 
-//
-//    @PostMapping
-//    public ApiResponseDTO<DriverDto> createOrUpdateDriverProfile(@RequestBody DriverDto driver) {
-//        UUID userId =  UUID.fromString((String)SecurityContextHolder
-//                .getContext()
-//                .getAuthentication()
-//                .getPrincipal());
-//        return ApiResponseDTO.<DriverDto>builder()
-//                .message("Driver created successfully")
-//                .success(true)
-//                .data(driverService.createOrUpdateDriver(driver, userId))
-//                .build();
-//    }
 
     @PreAuthorize("hasRole('DRIVER')")
     @GetMapping("/shipments")
@@ -50,6 +34,20 @@ public class DriverController {
                 .data(driverService.getAllShipmentsForDriver(phoneNumber))
                 .build();
     }
+
+    @PreAuthorize("hasRole('DRIVER')")
+    @GetMapping("/shipments/{shipmentId}/tracking")
+    public ApiResponseDTO<List<TrackingDto>> getAllShipmentsTrackDetails(@PathVariable UUID shipmentId) {
+        String phoneNumber = (SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal()).toString();
+        return ApiResponseDTO.<List<TrackingDto>>builder()
+                .message("Shipments retrieved successfully")
+                .success(true)
+                .data(driverService.getShipmentTrack(shipmentId, phoneNumber))
+                .build();
+    } 
 
     @GetMapping
     public ApiResponseDTO<List<DriverDto>> getAllDrivers() {

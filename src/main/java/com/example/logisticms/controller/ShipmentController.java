@@ -9,6 +9,7 @@ import com.example.logisticms.dto.ShipmentSummaryResponse;
 import com.example.logisticms.entity.FleetOperator;
 import com.example.logisticms.entity.Shipment;
 import com.example.logisticms.entity.Truck;
+import com.example.logisticms.entity.enums.ShipmentStatus;
 import com.example.logisticms.exception.UnauthorizedOperationException;
 import com.example.logisticms.mapper.ShipmentMapper;
 import com.example.logisticms.service.impl.FleetOperatorRoleServiceImpl;
@@ -26,7 +27,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/fleetoperators")
+@RequestMapping("/api/v1")
 @RequiredArgsConstructor
 @Validated
 public class ShipmentController {
@@ -38,7 +39,7 @@ public class ShipmentController {
 
 //    TODO: test without truck and with truck
 
-    @PostMapping("{fleetOperatorId}/shipments")
+    @PostMapping("/fleetoperators/{fleetOperatorId}/shipments")
     public ApiResponseDTO<ShipmentCreateResponse> createShipment(@RequestBody @Valid ShipmentCreateRequest shipment, @PathVariable UUID fleetOperatorId) {
         UUID userId =  UUID.fromString((String) SecurityContextHolder
                 .getContext()
@@ -62,7 +63,7 @@ public class ShipmentController {
 
 
 
-    @GetMapping("/{fleetOperatorId}/shipments")
+    @GetMapping("/fleetoperators/{fleetOperatorId}/shipments")
     public ApiResponseDTO<ShipmentSummaryResponse> getAllShipmentsSummary(@PathVariable UUID fleetOperatorId) {
         UUID userId =  UUID.fromString((String) SecurityContextHolder
                 .getContext()
@@ -78,16 +79,15 @@ public class ShipmentController {
         }
         throw new UnauthorizedOperationException("Only admins can create shipments for a fleet operator");
     }
-//
-//    @GetMapping("/{id}")
-//    public Shipment getShipmentById(@PathVariable Long id) {
-//        return shipmentService.getShipmentById(id);
-//    }
-//
-//    @PutMapping("/{id}/status")
-//    public Shipment updateShipmentStatus(@PathVariable Long id, @RequestParam String status) {
-//        return shipmentService.updateStatus(id, status);
-//    }
+
+    @PutMapping("/shipments/{shipmentId}/status")
+    public ApiResponseDTO<Void> updateShipmentStatus(@PathVariable UUID shipmentId, @RequestParam ShipmentStatus status) {
+        shipmentService.updateShipmentStatus(status, shipmentId);
+        return ApiResponseDTO.<Void>builder()
+                .success(true)
+                .message("Shipment status updated successfully")
+                .build();
+    }
 
 //    @PutMapping("/{id}/assign")
 //    public Shipment assignTruckAndDriver(@PathVariable Long id,

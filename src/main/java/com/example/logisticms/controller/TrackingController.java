@@ -1,19 +1,24 @@
 package com.example.logisticms.controller;
 
 
+import com.example.logisticms.dto.ApiResponseDTO;
+import com.example.logisticms.dto.DriverShipment;
+import com.example.logisticms.dto.TrackingDto;
 import com.example.logisticms.entity.LocationUpdate;
 import com.example.logisticms.service.impl.TrackingServiceImpl;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/tracking")
+@RequestMapping("/api/v1/tracking")
+@RequiredArgsConstructor
 public class TrackingController {
 
-//    @Autowired
-//    private TrackingServiceImpl trackingService;
+    private final TrackingServiceImpl trackingService;
 
 //    @PostMapping("/driver/{driverId}/shipment/{shipmentId}")
 //    public LocationUpdate addLocationUpdate(@PathVariable Long driverId,
@@ -23,9 +28,5 @@ public class TrackingController {
 //        return trackingService.addLocationUpdate(driverId, shipmentId, lat, lon);
 //    }
 
-//    @GetMapping("/shipment/{shipmentId}")
-//    public List<LocationUpdate> getShipmentTracking(@PathVariable Long shipmentId) {
-//        return trackingService.getShipmentTracking(shipmentId);
-//    }
 }
 
