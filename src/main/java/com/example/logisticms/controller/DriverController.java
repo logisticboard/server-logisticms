@@ -2,6 +2,7 @@ package com.example.logisticms.controller;
 
 import com.example.logisticms.dto.*;
 import com.example.logisticms.entity.FleetOperator;
+import com.example.logisticms.entity.enums.ShipmentStatus;
 import com.example.logisticms.service.impl.DriverServiceImpl;
 import com.example.logisticms.service.impl.FleetOperatorServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +24,9 @@ public class DriverController {
 
     @PreAuthorize("hasRole('DRIVER')")
     @GetMapping("/shipments")
-    public ApiResponseDTO<List<DriverShipment>> getAllShipmentsForFleetOperatorDriver() {
+    public ApiResponseDTO<List<DriverShipment>> getAllShipmentsForFleetOperatorDriver(  @RequestParam(required = false) ShipmentStatus shipmentStatus,
+                                                                                        @RequestParam(defaultValue = "0") int page,
+                                                                                        @RequestParam(defaultValue = "10") int size) {
         String phoneNumber = (SecurityContextHolder
                 .getContext()
                 .getAuthentication()
@@ -31,7 +34,34 @@ public class DriverController {
         return ApiResponseDTO.<List<DriverShipment>>builder()
                 .message("Shipments retrieved successfully")
                 .success(true)
-                .data(driverService.getAllShipmentsForDriver(phoneNumber))
+                .data(driverService.getAllShipmentsForDriver(phoneNumber, shipmentStatus, page, size))
+                .build();
+    }
+
+    @PreAuthorize("hasRole('DRIVER')")
+    @GetMapping("/fleetOperators")
+    public ApiResponseDTO<List<DriverFleetOperatorResponse>> getAllFleetOperatorsForDriver() {
+        String phoneNumber = (SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal()).toString();
+        return ApiResponseDTO.<List<DriverFleetOperatorResponse>>builder()
+                .message("Fleet Operators retrieved successfully")
+                .success(true)
+                .data(driverService.getAllFleetOperatorsNameForDriver(phoneNumber))
+                .build();
+    }
+    @PreAuthorize("hasRole('DRIVER')")
+    @GetMapping("/fleetOperators/{fleetOperatorId}/profile")
+    public ApiResponseDTO<DriverProfileForFleetOperator> getDriverProfileForFleetOperator(@PathVariable UUID fleetOperatorId) {
+        String phoneNumber = (SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal()).toString();
+        return ApiResponseDTO.<DriverProfileForFleetOperator>builder()
+                .message("Fleet Operators retrieved successfully")
+                .success(true)
+                .data(driverService.getDriverProfileForFleetOperator(phoneNumber, fleetOperatorId))
                 .build();
     }
 

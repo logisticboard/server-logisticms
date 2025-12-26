@@ -22,4 +22,12 @@ public interface DriverRepository extends JpaRepository<Driver, UUID> {
     List<Driver> findByPhoneNumber(String phoneNumber);
 
     boolean existsByFleetOperatorAndPhoneNumber(FleetOperator fleetOperator, String phoneNumber);
+
+
+    Optional<Driver> findByPhoneNumberAndFleetOperator_Id(
+            String phoneNumber,
+            UUID fleetOperatorId
+    );
+
+
 }
