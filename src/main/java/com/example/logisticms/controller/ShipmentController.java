@@ -46,12 +46,8 @@ public class ShipmentController {
                 .getAuthentication()
                 .getPrincipal());
         if(fleetOperatorRoleService.isUserAdminOfFleetOperator(fleetOperatorId, userId)) {
-            Truck truck = null;
-            if(shipment.getTruckId() != null) {
-                truck = truckService.getTruckByFleetOperatorIdAndTruckId(fleetOperatorId, shipment.getTruckId());
-            }
             FleetOperator fleetOperator = fleetOperatorService.getFleetOperatorById(fleetOperatorId);
-            Shipment shipmentResponse = shipmentService.createShipment(shipment, truck, fleetOperator);
+            Shipment shipmentResponse = shipmentService.createShipment(shipment, fleetOperator);
             return ApiResponseDTO.<ShipmentCreateResponse>builder()
                     .data(ShipmentMapper.toShipmentCreateResponse(shipmentResponse))
                     .success(Boolean.TRUE)

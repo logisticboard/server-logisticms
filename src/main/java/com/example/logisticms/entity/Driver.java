@@ -42,10 +42,6 @@ public class Driver extends BaseEntity {
     @Column(precision = 9, scale = 6)
     private BigDecimal currentLon;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JsonIgnore
-    @ToString.Exclude
-    private Truck truck;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore

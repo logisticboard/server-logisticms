@@ -15,7 +15,7 @@ public class ShipmentMapper {
     private ShipmentMapper() {
         // Private constructor to prevent instantiation
     }
-    public static Shipment toEntity(ShipmentCreateRequest request, Truck truck, ShipmentStatus status, FleetOperator fleetOperator) {
+    public static Shipment toEntity(ShipmentCreateRequest request, ShipmentStatus status, FleetOperator fleetOperator) {
         Location locationPickup = toEntityLocation(request.getPickupLocation());
         Location locationDelivery = toEntityLocation(request.getDeliveryLocation());
         List<ContactDetails> contactDetailsList = toEntityContactList(request.getContactDetails());
@@ -27,7 +27,6 @@ public class ShipmentMapper {
                 .deliveryLocation(locationDelivery)
                 .shipmentWeight(request.getShipmentWeight())
                 .shipmentTotalEstimatedCost(request.getShipmentTotalEstimatedCost())
-                .truck(truck)
                 .fleetOperator(fleetOperator)
                 .shipmentStatus(status)
                 .shipmentSpecialInstructions(request.getShipmentSpecialInstructions())
@@ -83,7 +82,6 @@ public class ShipmentMapper {
     }
 
     public static ShipmentCreateResponse toShipmentCreateResponse(Shipment shipmentResponse) {
-        String truckId = shipmentResponse.getTruck() != null ? shipmentResponse.getTruck().getId().toString() : null;
         return ShipmentCreateResponse.builder()
                 .shipmentId(shipmentResponse.getId())
                 .shipmentName(shipmentResponse.getShipmentName())
@@ -92,7 +90,6 @@ public class ShipmentMapper {
                 .deliveryLocation(shipmentResponse.getDeliveryLocation().getAddress())
                 .shipmentWeight(shipmentResponse.getShipmentWeight())
                 .shipmentTotalEstimatedCost(shipmentResponse.getShipmentTotalEstimatedCost())
-                .truckId(truckId)
                 .shipmentStatus(shipmentResponse.getShipmentStatus())
                 .shipmentSpecialInstructions(shipmentResponse.getShipmentSpecialInstructions())
                 .contactDetails(toDtoContactList(shipmentResponse.getContactDetails()))
@@ -109,11 +106,10 @@ public class ShipmentMapper {
                 .shipmentPickupDate(shipment.getPickupDate())
                 .shipmentStatus(shipment.getShipmentStatus())
                 .shipmentWeight(shipment.getShipmentWeight())
-                .shipmentCarriedBy(shipment.getTruck() != null ? shipment.getTruck().getRegistrationNumber(): "Unassigned")
                 .build();
     }
 
-    public static DriverShipment toDriverShipmentDto(Shipment shipment, String fleetOperatorName) {
+    public static DriverShipment toDriverShipmentDto(Shipment shipment) {
         return DriverShipment.builder()
                 .shipmentUid(shipment.getId())
                 .shipmentId(shipment.getShipmentFormalName())
@@ -125,7 +121,7 @@ public class ShipmentMapper {
                 .shipmentWeight(shipment.getShipmentWeight())
                 .shipmentSpecialInstructions(shipment.getShipmentSpecialInstructions())
                 .contactDetails(toDtoContactList(shipment.getContactDetails()))
-                .fleetOperatorName(fleetOperatorName)
+                .fleetOperatorName(shipment.getFleetOperator().getName())
                 .build();
     }
 

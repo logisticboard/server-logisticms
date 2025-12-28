@@ -37,14 +37,6 @@ public class Truck {
     @ToString.Exclude
     private FleetOperator fleetOperator;
 
-    @OneToMany(mappedBy = "truck", fetch = FetchType.LAZY)
-    @ToString.Exclude
-    @JsonIgnore
-    private List<Driver> assignedDriver;
 
-    @OneToMany(mappedBy = "truck", cascade = CascadeType.ALL)
-    @ToString.Exclude
-    @JsonIgnore
-    private List<Shipment> shipments;
 }
 

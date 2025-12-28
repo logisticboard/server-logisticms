@@ -20,25 +20,4 @@ import java.util.UUID;
 public interface ShipmentRepository extends JpaRepository<Shipment, UUID> {
     List<Shipment> findAllByFleetOperator_Id(UUID fleetOperatorId);
 
-    List<Shipment> findByTruck(Truck truck);
-    @Modifying
-    @Transactional
-    @Query("""
-    UPDATE Shipment s
-    SET s.shipmentStatus = :status
-    WHERE s.id = :shipmentId
-""")
-    int updateShipmentStatusById(UUID shipmentId, ShipmentStatus status);
-
-    @Query("""
-        SELECT s FROM Shipment s
-        WHERE s.truck.id = :truckId
-        AND (:status IS NULL OR s.shipmentStatus = :status)
-    """)
-    Page<Shipment> findByTruckAndStatus(
-            @Param("truckId") UUID truckId,
-            @Param("status") ShipmentStatus status,
-            Pageable pageable
-    );
-
 }

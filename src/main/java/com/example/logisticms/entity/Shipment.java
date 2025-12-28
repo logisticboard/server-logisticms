@@ -1,5 +1,6 @@
 package com.example.logisticms.entity;
 
+import com.example.logisticms.entity.enums.ShipmentAssignment;
 import com.example.logisticms.entity.enums.ShipmentStatus;
 import jakarta.persistence.*;
 import jakarta.validation.Valid;
@@ -74,9 +75,12 @@ public class Shipment extends BaseEntity {
     @Column(nullable = false)
     private ShipmentStatus shipmentStatus;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "truck_id")
-    private Truck truck;
+    @OneToMany(
+            mappedBy = "shipment",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<ShipmentAssignment> assignments;
 
 
     @ManyToOne(fetch = FetchType.LAZY)

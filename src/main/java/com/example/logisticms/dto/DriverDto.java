@@ -25,8 +25,6 @@ public class DriverDto {
     @NotBlank(message = "License number is required")
     private String licenseNumber;
 
-    // Optional field
-    private TruckDto assignedTruck;
 
     @NotNull(message = "Driver status is required")
     private DriverStatus driverStatus;

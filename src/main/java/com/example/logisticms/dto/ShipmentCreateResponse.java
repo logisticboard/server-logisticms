@@ -25,7 +25,6 @@ public class ShipmentCreateResponse {
     private String deliveryLocation;
     private Double shipmentWeight; // changed from String → Double
     private Double shipmentTotalEstimatedCost; // changed from String → Double
-    private String truckId;
     private String shipmentSpecialInstructions;
     private ShipmentStatus shipmentStatus;
     private List<ShipmentCreateRequest.ContactDetailsRequest> contactDetails;

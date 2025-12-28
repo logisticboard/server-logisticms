@@ -75,17 +75,6 @@ public class FleetOperatorServiceImpl {
                 .stream()
                 .map(truck-> {
                     List<DriverDto> assignedDrivers = new ArrayList<>();
-                    System.out.println(truck.getAssignedDriver());
-                    if(!truck.getAssignedDriver().isEmpty()) {
-                        truck.getAssignedDriver().forEach(driver ->
-                            assignedDrivers.add(
-                                    DriverDto.builder()
-                                            .driverId(driver.getId())
-                                            .name(driver.getName())
-                                            .build()
-                            )
-                        );
-                    }
                     return TruckDto.builder()
                             .truckId(truck.getId())
                             .registrationNumber(truck.getRegistrationNumber())
@@ -93,16 +82,11 @@ public class FleetOperatorServiceImpl {
                             .capacity(truck.getCapacity())
                             .description(truck.getDescription())
                             .truckStatus(truck.getStatus())
-                            .drivers(assignedDrivers)
                             .build();
                 })
                 .toList();
     }
 
-    public Truck getTruckById(UUID truckId) {
-        return truckRepository.findById(truckId)
-                .orElseThrow(()-> new NoResourceFoundException("Truck not found for given id"));
-    }
 
     public DriverDto createDriver(DriverDto driverDto, UUID fleetOperatorId) {
         FleetOperator fleetOperator = getFleetOperatorById(fleetOperatorId);
@@ -110,9 +94,6 @@ public class FleetOperatorServiceImpl {
             throw new UnauthorizedOperationException("Driver with given phone number already exists for this fleet operator");
         }
 
-        Truck  truck = null;
-        if(driverDto.getAssignedTruck() != null)
-            truck = getTruckById(driverDto.getAssignedTruck().getTruckId());
         Driver driver = driverRepository.save(
                 Driver.builder()
                         .name(driverDto.getName())
@@ -120,7 +101,6 @@ public class FleetOperatorServiceImpl {
                         .phoneNumber(driverDto.getPhoneNumber())
                         .status(DriverStatus.AVAILABLE)
                         .fleetOperator(fleetOperator)
-                        .truck(truck)
                         .build());
         return DriverDto.builder()
                 .name(driver.getName())
@@ -128,9 +108,6 @@ public class FleetOperatorServiceImpl {
                 .licenseNumber(driver.getLicenseNumber())
                 .phoneNumber(driver.getPhoneNumber())
                 .driverStatus(driver.getStatus())
-                .assignedTruck(
-                        driver.getTruck() != null ? TruckMapper.toDto(driver.getTruck()) : null
-                )
                 .build();
     }
 
@@ -145,24 +122,17 @@ public class FleetOperatorServiceImpl {
                         .licenseNumber(driver.getLicenseNumber())
                         .phoneNumber(driver.getPhoneNumber())
                         .driverStatus(driver.getStatus())
-                        .assignedTruck(
-                                driver.getTruck() != null ? TruckMapper.toDto(driver.getTruck()) : null
-                        )
                         .build()
                 )
                 .toList();
     }
 
     public DriverDto updateDriver(UUID driverId, DriverDto driverDto, UUID fleetOperatorId) {
-        Truck  truck = null;
-        if(driverDto.getAssignedTruck() != null)
-            truck = getTruckById(driverDto.getAssignedTruck().getTruckId());
         Driver existingDriver = driverRepository.findById(driverId)
                 .orElseThrow(()-> new NoResourceFoundException("Driver not found for given id"));
         existingDriver.setName(driverDto.getName());
         existingDriver.setLicenseNumber(driverDto.getLicenseNumber());
         existingDriver.setPhoneNumber(driverDto.getPhoneNumber());
-        existingDriver.setTruck(truck);
         driverRepository.save(existingDriver);
         return DriverDto.builder()
                 .name(existingDriver.getName())
@@ -170,9 +140,6 @@ public class FleetOperatorServiceImpl {
                 .licenseNumber(existingDriver.getLicenseNumber())
                 .phoneNumber(existingDriver.getPhoneNumber())
                 .driverStatus(existingDriver.getStatus())
-                .assignedTruck(
-                        existingDriver.getTruck() != null ? TruckMapper.toDto(existingDriver.getTruck()) : null
-                )
                 .build();
     }
 

@@ -35,7 +35,5 @@ public class TruckDto {
     @NotNull(message = "Truck status is required")
     private TruckStatus truckStatus;
 
-    @NotNull
-    private List<DriverDto> drivers;
 
 }

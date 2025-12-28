@@ -16,7 +16,7 @@ import java.util.UUID;
 public interface DriverRepository extends JpaRepository<Driver, UUID> {
     List<Driver> findByFleetOperator(FleetOperator fleetOperator);
 
-    @Query("SELECT d FROM Driver d WHERE d.fleetOperator.id = :fleetOperatorId AND d.truck IS NULL")
+    @Query("SELECT d FROM Driver d WHERE d.fleetOperator.id = :fleetOperatorId")
     List<Driver> findUnassignedDrivers(UUID fleetOperatorId);
 
     List<Driver> findByPhoneNumber(String phoneNumber);

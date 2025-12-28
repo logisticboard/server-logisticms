@@ -29,15 +29,6 @@ public class FleetOperatorController {
     private final TruckServiceImpl truckService;
 
 
-//    @PostMapping
-//    public ApiResponseDTO<Void> createFleetOperatorRole(@RequestBody List<FleetOperatorRoleCreate> fleetOperatorRoleCreateList){
-//        fleetOperatorService.createFleetOperatorRoles(fleetOperatorRoleCreateList);
-//        return ApiResponseDTO.<Void>builder()
-//                .message("Fleet Operator Roles created successfully")
-//                .success(true)
-//                .build();
-//    }
-
     @PostMapping
     public ApiResponseDTO<FleetOperatorDto> createFleetOperator(@RequestBody @Valid FleetOperatorDto fleetOperatorDto){
         UUID userId =  UUID.fromString((String)SecurityContextHolder
@@ -53,20 +44,15 @@ public class FleetOperatorController {
                 .build();
     }
 
-    @PutMapping("/{companyId}")
+    @PutMapping("/{fleetOperatorId}")
     public ApiResponseDTO<FleetOperatorDto> updateFleetOperator(@RequestBody @Valid FleetOperatorDto fleetOperatorDto,
-                                                                @PathVariable @NotBlank
-                                                                @Pattern(
-                                                                        regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
-                                                                        message = "companyId must be a valid UUID"
-                                                                )
-                                                                String companyId){
+                                                                @PathVariable UUID fleetOperatorId){
         UUID userId =  UUID.fromString((String)SecurityContextHolder
                 .getContext()
                 .getAuthentication()
                 .getPrincipal());
-        if(fleetOperatorRoleService.isUserAdminOfFleetOperator(UUID.fromString(companyId), userId)){
-            FleetOperator fleetOperator = fleetOperatorService.updateFleetOperator(fleetOperatorDto, UUID.fromString(companyId));
+        if(fleetOperatorRoleService.isUserAdminOfFleetOperator(fleetOperatorId, userId)){
+            FleetOperator fleetOperator = fleetOperatorService.updateFleetOperator(fleetOperatorDto, fleetOperatorId);
             fleetOperatorRoleService.addMemberToFleetOperator(fleetOperator, FleetOperatorRolesEnum.ADMIN, userId);
             return ApiResponseDTO.<FleetOperatorDto>builder()
                     .message("Company data updated successfully")
