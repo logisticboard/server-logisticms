@@ -25,15 +25,15 @@ public class ShipmentAssignment extends BaseEntity {
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "shipment_id", nullable = false)
+    @JoinColumn(name = "shipment_id")
     private Shipment shipment;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "driver_id", nullable = false)
+    @JoinColumn(name = "driver_id")
     private Driver driver;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "truck_id", nullable = false)
+    @JoinColumn(name = "truck_id")
     private Truck truck;
 
     // Optional but VERY useful later

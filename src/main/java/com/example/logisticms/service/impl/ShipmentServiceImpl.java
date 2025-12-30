@@ -2,7 +2,9 @@ package com.example.logisticms.service.impl;
 
 
 import com.example.logisticms.dto.ShipmentCreateRequest;
+import com.example.logisticms.dto.ShipmentDetailsResponse;
 import com.example.logisticms.dto.ShipmentSummaryResponse;
+import com.example.logisticms.dto.ShipmentUpdateRequest;
 import com.example.logisticms.entity.*;
 import com.example.logisticms.entity.enums.ShipmentAssignment;
 import com.example.logisticms.entity.enums.ShipmentStatus;
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -44,6 +47,7 @@ public class ShipmentServiceImpl {
             toSave.setAssignments(shipmentAssignments);
             shipmentStatus = isDriverAssignedToAllShippers ? ShipmentStatus.READY_FOR_DISPATCH:ShipmentStatus.TRUCK_ASSIGNED;
         }
+        toSave.setShipmentStatus(shipmentStatus);
         Shipment shipmentSavedEntity = shipmentRepository.save(toSave);
         trackingRepository.save(Tracking.builder()
                 .shipment(shipmentSavedEntity)
@@ -81,5 +85,39 @@ public class ShipmentServiceImpl {
                 .build());
     }
 
+    public ShipmentDetailsResponse getShipmentDetails(UUID shipmentId) {
+        return shipmentRepository.findById(shipmentId)
+                .map(ShipmentMapper::toShipmentDetailsResponse)
+                .orElseThrow(() -> new NoResourceFoundException("Shipment not found with ID: " + shipmentId));
+    }
+
+
+    public void updateShipment(ShipmentUpdateRequest request, UUID shipmentId) {
+        Shipment savedEntity = shipmentRepository.findById(shipmentId).orElseThrow(() -> new NoResourceFoundException("Shipment not found with ID: " + shipmentId));
+        savedEntity.getAssignments().clear();
+        for(ShipmentCreateRequest.ShipperDataDto shipper : request.getShippers()) {
+            if(shipper.getDriverUids().isEmpty())
+                savedEntity.getAssignments().add(ShipmentAssignment.builder()
+                        .truck(Truck.builder().id(shipper.getTruckUid()).build())
+                        .shipment(savedEntity)
+                        .build());;
+            for(UUID driverUid : shipper.getDriverUids()) {
+                savedEntity.getAssignments().add(ShipmentAssignment.builder()
+                        .truck(Truck.builder().id(shipper.getTruckUid()).build())
+                        .driver(Driver.builder().id(driverUid).build())
+                        .shipment(savedEntity)
+                        .build());
+            }
+        }
+        savedEntity.setContactDetails(request.getContactDetails().stream()
+                .map(contact -> ContactDetails.builder()
+                        .name(contact.getName())
+                        .email(contact.getEmail())
+                        .phoneNumber(contact.getPhoneNumber())
+                        .role(contact.getRole())
+                        .build())
+                .collect(Collectors.toList()));
+        shipmentRepository.save(savedEntity);
+    }
 }
 

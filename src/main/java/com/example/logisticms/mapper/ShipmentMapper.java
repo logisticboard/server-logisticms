@@ -1,14 +1,10 @@
 package com.example.logisticms.mapper;
 
-import com.example.logisticms.dto.DriverShipment;
-import com.example.logisticms.dto.ShipmentCreateRequest;
-import com.example.logisticms.dto.ShipmentCreateResponse;
-import com.example.logisticms.dto.ShipmentSummaryResponse;
+import com.example.logisticms.dto.*;
 import com.example.logisticms.entity.*;
 import com.example.logisticms.entity.enums.ShipmentStatus;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class ShipmentMapper {
@@ -125,4 +121,49 @@ public class ShipmentMapper {
                 .build();
     }
 
+    public static ShipmentDetailsResponse toShipmentDetailsResponse(Shipment shipment) {
+        Map<Truck, List<Driver>> truckListMap= new HashMap<>();
+        shipment.getAssignments().forEach(assignment -> {
+            truckListMap.computeIfAbsent(assignment.getTruck(), k -> new java.util.ArrayList<>()).add(assignment.getDriver());
+        });
+        ShipmentDetailsResponse shipmentDetailsResponse = ShipmentDetailsResponse.builder()
+                .id(shipment.getId())
+                .shipmentName(shipment.getShipmentName())
+                .shipmentFormalName(shipment.getShipmentFormalName())
+                .pickupDate(shipment.getPickupDate())
+                .pickupLocation(shipment.getPickupLocation().getAddress())
+                .deliveryLocation(shipment.getDeliveryLocation().getAddress())
+                .shipmentWeight(shipment.getShipmentWeight())
+                .shipmentTotalEstimatedCost(shipment.getShipmentTotalEstimatedCost())
+                .shipmentSpecialInstructions(shipment.getShipmentSpecialInstructions())
+                .shipmentStatus(shipment.getShipmentStatus())
+                .fleetOperatorName(shipment.getFleetOperator().getName())
+                .assignments(truckListMap.entrySet().stream()
+                        .map(entry -> ShipmentDetailsResponse.ShipmentAssignmentData.builder()
+                                .truckUid(entry.getKey().getId().toString())
+                                .truckRegistrationNumber(entry.getKey().getRegistrationNumber())
+                                .truckModel(entry.getKey().getModel())
+                                .truckCapacity(entry.getKey().getCapacity())
+                                .drivers(entry.getValue().stream()
+                                        .filter(Objects::nonNull)
+                                        .map(driver -> ShipmentDetailsResponse.DriverData.builder()
+                                                .driverUid(driver.getId().toString())
+                                                .driverFullName(driver.getName())
+                                                .driverLicenseNumber(driver.getLicenseNumber())
+                                                .driverContactNumber(driver.getPhoneNumber())
+                                                .build())
+                                        .toList())
+                                .build())
+                        .toList())
+                .contactDetails(shipment.getContactDetails().stream()
+                        .map(cd -> ShipmentDetailsResponse.ContactDetailsData.builder()
+                                .contactName(cd.getName())
+                                .contactEmail(cd.getEmail())
+                                .contactPhone(cd.getPhoneNumber())
+                                .contactRole(cd.getRole())
+                                .build())
+                        .toList())
+                .build();
+        return shipmentDetailsResponse;
+    }
 }

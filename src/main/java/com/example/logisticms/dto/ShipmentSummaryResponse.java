@@ -33,7 +33,6 @@ public class ShipmentSummaryResponse {
         private String deliveryLocationAddress;
         private ShipmentStatus shipmentStatus;
         private double shipmentWeight;
-        private String shipmentCarriedBy;
         private LocalDateTime shipmentPickupDate;
     }
 }
