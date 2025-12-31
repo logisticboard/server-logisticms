@@ -19,5 +19,6 @@ import java.util.UUID;
 
 public interface ShipmentRepository extends JpaRepository<Shipment, UUID> {
     List<Shipment> findAllByFleetOperator_Id(UUID fleetOperatorId);
-
+    Page<Shipment> findAllByFleetOperator_Id(UUID fleetOperatorId, Pageable pageable);
+    Page<Shipment> findAllByFleetOperator_IdAndShipmentStatus(UUID fleetOperatorId, ShipmentStatus shipmentStatus, Pageable pageable);
 }

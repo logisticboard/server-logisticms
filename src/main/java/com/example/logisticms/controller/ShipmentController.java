@@ -65,20 +65,23 @@ public class ShipmentController {
 
 
     @GetMapping("/fleetoperators/{fleetOperatorId}/shipments")
-    public ApiResponseDTO<ShipmentSummaryResponse> getAllShipmentsSummary(@PathVariable UUID fleetOperatorId) {
+    public ApiResponseDTO<ShipmentSummaryResponse> getAllShipmentsSummary(
+            @PathVariable UUID fleetOperatorId,
+            @RequestParam(value = "shipmentStatus", required = false) ShipmentStatus shipmentStatus,
+            @RequestParam(value = "page", required = false, defaultValue = "0") int page,
+            @RequestParam(value = "size", required = false, defaultValue = "100") int size) {
         UUID userId =  UUID.fromString((String) SecurityContextHolder
                 .getContext()
                 .getAuthentication()
                 .getPrincipal());
         if(fleetOperatorRoleService.isUserMemberOfFleetOperator(fleetOperatorId, userId)) {
             return ApiResponseDTO.<ShipmentSummaryResponse>builder()
-                    .data(shipmentService.getAllShipmentsSummary(fleetOperatorId))
+                    .data(shipmentService.getAllShipmentsSummary(fleetOperatorId, shipmentStatus, page, size))
                     .success(Boolean.TRUE)
                     .message("Shipment summary fetched successfully")
                     .build();
-
         }
-        throw new UnauthorizedOperationException("Only admins can create shipments for a fleet operator");
+        throw new UnauthorizedOperationException("Only members can view shipments for a fleet operator");
     }
 
     @GetMapping("/shipments/{shipmentId}")
@@ -101,4 +104,3 @@ public class ShipmentController {
     }
 
 }
-

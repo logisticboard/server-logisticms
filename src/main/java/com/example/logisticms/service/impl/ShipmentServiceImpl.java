@@ -72,6 +72,26 @@ public class ShipmentServiceImpl {
                 .build();
     }
 
+    public ShipmentSummaryResponse getAllShipmentsSummary(UUID fleetOperatorId, ShipmentStatus shipmentStatus, int page, int size) {
+        org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(page, size);
+        org.springframework.data.domain.Page<Shipment> shipmentPage;
+        if (shipmentStatus != null) {
+            shipmentPage = shipmentRepository.findAllByFleetOperator_IdAndShipmentStatus(fleetOperatorId, shipmentStatus, pageable);
+        } else {
+            shipmentPage = shipmentRepository.findAllByFleetOperator_Id(fleetOperatorId, pageable);
+        }
+        List<ShipmentSummaryResponse.Shipment> shipments = shipmentPage.getContent().stream()
+                .map(ShipmentMapper::toShipmentSummaryShipmentResponse)
+                .toList();
+        return ShipmentSummaryResponse.builder()
+                .shipments(shipments)
+                .totalShipments((int) shipmentPage.getTotalElements())
+                .inTransit((int) shipmentPage.getContent().stream().filter(s -> s.getShipmentStatus() == ShipmentStatus.IN_TRANSIT).count())
+                .delivered((int) shipmentPage.getContent().stream().filter(s -> s.getShipmentStatus() == ShipmentStatus.DELIVERED).count())
+                .pending((int) shipmentPage.getContent().stream().filter(s -> s.getShipmentStatus() == ShipmentStatus.CREATED || s.getShipmentStatus() == ShipmentStatus.TRUCK_ASSIGNED || s.getShipmentStatus() == ShipmentStatus.READY_FOR_DISPATCH).count())
+                .build();
+    }
+
     public void updateShipmentStatus(ShipmentStatus shipmentStatus, UUID shipmentId){
         Shipment shipmentSavedEntity = shipmentRepository.findById(shipmentId).orElseThrow(() -> new NoResourceFoundException("Shipment not found with ID: " + shipmentId));
         shipmentSavedEntity.setShipmentStatus(shipmentStatus);
@@ -120,4 +140,3 @@ public class ShipmentServiceImpl {
         shipmentRepository.save(savedEntity);
     }
 }
-
