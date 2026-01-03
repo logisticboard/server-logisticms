@@ -1,17 +1,9 @@
 package com.example.logisticms.controller;
 
 
-import com.example.logisticms.dto.ApiResponseDTO;
-import com.example.logisticms.dto.DriverShipment;
-import com.example.logisticms.dto.TrackingDto;
-import com.example.logisticms.entity.LocationUpdate;
 import com.example.logisticms.service.impl.TrackingServiceImpl;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/tracking")

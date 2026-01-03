@@ -2,8 +2,6 @@ package com.example.logisticms.service.impl;
 
 
 import com.example.logisticms.dto.TrackingDto;
-import com.example.logisticms.entity.Driver;
-import com.example.logisticms.entity.LocationUpdate;
 //import com.example.logisticms.entity.Shipment;
 //import com.example.logisticms.repository.DriverRepository;
 //import com.example.logisticms.repository.LocationUpdateRepository;
@@ -13,7 +11,6 @@ import com.example.logisticms.repository.TrackingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
