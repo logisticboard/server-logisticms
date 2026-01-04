@@ -164,4 +164,32 @@ public class ShipmentServiceImpl {
         });
         return coordinateDTOMap;
     }
+
+    public ShipmentOverviewResponse getShipmentOverview(UUID fleetOperatorId) {
+        List<Object[]> statusCounts = shipmentRepository.countByStatusForFleetOperator(fleetOperatorId);
+        Map<String, Long> overview = statusCounts.stream()
+                .collect(Collectors.toMap(
+                        arr -> arr[0].toString(),
+                        arr -> (Long) arr[1]
+                ));
+        long total = statusCounts.stream()
+                .mapToLong(arr -> (Long) arr[1])
+                .sum();
+        return ShipmentOverviewResponse.builder()
+                .shipmentOverview(overview)
+                .totalShipments(total)
+                .build();
+    }
+
+    public org.springframework.data.domain.Page<TransactionHistoryItemDto> getTransactionHistory(UUID fleetOperatorId, int page, int size) {
+        org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(page, size, org.springframework.data.domain.Sort.by("createdAt").descending());
+        org.springframework.data.domain.Page<Shipment> shipmentPage = shipmentRepository.findAllByFleetOperator_Id(fleetOperatorId, pageable);
+        return shipmentPage.map(s -> TransactionHistoryItemDto.builder()
+                .shipmentId(s.getId())
+                .shipmentName(s.getShipmentName())
+                .shipmentFormalName(s.getShipmentFormalName())
+                .date(s.getCreatedAt())
+                .totalEstimatedCost(s.getShipmentTotalEstimatedCost() == null ? null : java.math.BigDecimal.valueOf(s.getShipmentTotalEstimatedCost()))
+                .build());
+    }
 }

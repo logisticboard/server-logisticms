@@ -22,4 +22,14 @@ public interface ShipmentRepository extends JpaRepository<Shipment, UUID> {
     @Query("SELECT s.id AS shipmentId, s.pickupLocation AS pickupLocation " +
             "FROM Shipment s WHERE s.id IN :shipmentIds")
     List<PickupLocationView> findPickupLocationsByIds(List<UUID> shipmentIds);
+
+    @Query("SELECT s.shipmentStatus as status, COUNT(s) as count FROM Shipment s WHERE s.fleetOperator.id = :fleetOperatorId GROUP BY s.shipmentStatus")
+    List<Object[]> countByStatusForFleetOperator(UUID fleetOperatorId);
+
+    long countByFleetOperator_Id(UUID fleetOperatorId);
+
+    @Query("SELECT FUNCTION('DATE', s.createdAt) as date, s.shipmentStatus as status, COUNT(s) as count " +
+            "FROM Shipment s WHERE s.fleetOperator.id = :fleetOperatorId AND s.createdAt >= :startDate AND s.createdAt <= :endDate " +
+            "GROUP BY FUNCTION('DATE', s.createdAt), s.shipmentStatus ORDER BY date ASC")
+    List<Object[]> countShipmentsByDateAndStatus(UUID fleetOperatorId, java.time.LocalDateTime startDate, java.time.LocalDateTime endDate);
 }
