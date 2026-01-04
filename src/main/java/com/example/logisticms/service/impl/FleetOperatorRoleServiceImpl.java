@@ -4,6 +4,7 @@ import com.example.logisticms.dto.*;
 import com.example.logisticms.entity.FleetOperator;
 import com.example.logisticms.entity.FleetOperatorMember;
 import com.example.logisticms.entity.FleetOperatorMemberId;
+import com.example.logisticms.exception.NoResourceFoundException;
 import com.example.logisticms.mapper.FleetOperatorMapper;
 import com.example.logisticms.repository.FleetOperatorMemberRepository;
 import com.example.logisticms.service.client.LoginMsClient;
@@ -52,7 +53,6 @@ public class FleetOperatorRoleServiceImpl {
     public List<FleetOperatorMembersResponse> getFleetOperatorsMembers(UUID userId, UUID fleetOperatorId) {
         List<FleetOperatorMember> fleetOperatorMemberList =
                 fleetOperatorMemberRepository.findByIdFleetOperatorId(fleetOperatorId);
-        System.out.println("fleetopeatorid: " + fleetOperatorId);
         List<UserDetailsDto> userDetails = loginMsClient.getUserDetailsByIds(
                 fleetOperatorMemberList.stream()
                         .map(member -> member.getId().getUserId())
@@ -106,5 +106,28 @@ public class FleetOperatorRoleServiceImpl {
                 fleetOperatorId,
                 userId
         );
+    }
+
+    public FleetOperatorMemberProfileResponse getFleetOperatorMemberProfileById(UUID memberId) {
+        UserDetailsDto userDetails = loginMsClient.getUserDetailsByIds(
+                List.of(memberId)
+        ).getFirst();
+        List<FleetOperatorMember> fleetOperatorMember = fleetOperatorMemberRepository.findByIdUserId(memberId);
+        return FleetOperatorMemberProfileResponse.builder()
+                .name(userDetails.getName())
+                .email(userDetails.getEmail())
+                .phone(userDetails.getPhone())
+                .fleetOperatorData(
+                        fleetOperatorMember
+                                .stream()
+                                .map((fleetOperatorDto)-> FleetOperatorMemberProfileResponse.FleetOperatorData.builder()
+                                        .fleetOperatorName(fleetOperatorDto.getFleetOperator().getName())
+                                        .fleetOperatorUid(fleetOperatorDto.getFleetOperator().getId())
+                                        .role(fleetOperatorDto.getRole())
+                                        .build()
+                                )
+                                .toList()
+                )
+                .build();
     }
 }

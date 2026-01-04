@@ -79,19 +79,19 @@ public class DriverController {
                 .build();
     } 
 
-    @GetMapping
-    public ApiResponseDTO<List<DriverDto>> getAllDrivers() {
-        UUID userId = UUID.fromString((SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getPrincipal()).toString());
-        FleetOperator fleetOperator = fleetOperatorService.getFleetOperatorForMember(userId);
-        return ApiResponseDTO.<List<DriverDto>>builder()
-                .message("Drivers retrieved successfully")
-                .success(true)
-                .data(driverService.getAllDriverByFleetOperator(fleetOperator))
-                .build();
-    }
+//    @GetMapping
+//    public ApiResponseDTO<List<DriverDto>> getAllDrivers() {
+//        UUID userId = UUID.fromString((SecurityContextHolder
+//                .getContext()
+//                .getAuthentication()
+//                .getPrincipal()).toString());
+//        FleetOperator fleetOperator = fleetOperatorService.getFleetOperatorForMember(userId);
+//        return ApiResponseDTO.<List<DriverDto>>builder()
+//                .message("Drivers retrieved successfully")
+//                .success(true)
+//                .data(driverService.getAllDriverByFleetOperator(fleetOperator))
+//                .build();
+//    }
 
     @GetMapping("/{id}")
     public ApiResponseDTO<DriverDto> getDriverById(@PathVariable UUID id) {

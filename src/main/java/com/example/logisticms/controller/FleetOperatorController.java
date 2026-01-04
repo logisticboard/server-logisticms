@@ -238,4 +238,17 @@ public class FleetOperatorController {
                 .build();
     }
 
+    @GetMapping("/member/profile")
+    public ApiResponseDTO<FleetOperatorMemberProfileResponse> getMembersProfileDataInFleetOperator(){
+        UUID userId =  UUID.fromString((String)SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal());
+            return ApiResponseDTO.<FleetOperatorMemberProfileResponse>builder()
+                    .message("Company members retrieved successfully")
+                    .data(fleetOperatorRoleService.getFleetOperatorMemberProfileById(userId))
+                    .success(true)
+                    .build();
+    }
+
 }

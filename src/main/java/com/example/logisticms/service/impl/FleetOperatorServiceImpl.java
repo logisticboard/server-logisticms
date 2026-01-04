@@ -31,11 +31,11 @@ public class FleetOperatorServiceImpl {
     private final FleetOperatorRepository fleetOperatorRepository;
     private final DriverRepository driverRepository;
     private final TruckRepository truckRepository;
-    public FleetOperator getFleetOperatorForMember(UUID userId) {
-        return fleetOperatorMemberRepository.findById(userId)
-                .orElseThrow(()-> new NoResourceFoundException("Fleet Operator not found for given user"))
-                .getFleetOperator();
-    }
+//    public FleetOperator getFleetOperatorForMember(UUID userId) {
+//        return fleetOperatorMemberRepository.findByIdUserId(userId)
+//                .orElseThrow(()-> new NoResourceFoundException("Fleet Operator not found for given user"))
+//                .getFleetOperator();
+//    }
     public FleetOperator getFleetOperatorById(UUID fleetOperatorId) {
         return fleetOperatorRepository.findById(fleetOperatorId)
                 .orElseThrow(()-> new NoResourceFoundException("Fleet Operator not found for given id"));
