@@ -86,7 +86,6 @@ public class LoginMsClient {
 
     public List<UserDetailsDto> getUserDetailsByEmailIds(List<String> emailsIdList) {
         String url = loginMsUrl + "/api/users/batch-by-user-email";
-        System.out.println("url: " + url);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("X-Internal-Token", internalApiKey);
@@ -101,7 +100,6 @@ public class LoginMsClient {
                             entity,
                             new ParameterizedTypeReference<ApiResponseDTO<List<UserDetailsDto>>>() {}
                     );
-            System.out.println(response);
             Objects.requireNonNull(response.getBody());
             if(response.getBody() != null && Boolean.TRUE.equals(response.getBody().isSuccess())){
                 return response.getBody().getData();
@@ -117,8 +115,6 @@ public class LoginMsClient {
 
         }
         catch (HttpClientErrorException ex) {
-            ex.printStackTrace();
-            System.out.println(ex.getResponseBodyAsString());
             throw new LoginMsException(ApiResponseDTO.error(
                     url,
                     HttpStatus.valueOf(ex.getStatusCode().value()),

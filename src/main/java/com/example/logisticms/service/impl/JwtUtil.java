@@ -29,7 +29,6 @@ public class JwtUtil {
             throw new InvalidJwtTokenException("Token has expired.", e);
         }
         catch (JwtException | IllegalArgumentException e) {
-            System.out.println(e.getMessage());
             throw new InvalidJwtTokenException("Invalid or malformed JWT token.", e);
         }
     }

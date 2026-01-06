@@ -63,17 +63,6 @@ public class FleetOperatorRoleServiceImpl {
                         member -> member.getId().getUserId(),
                         FleetOperatorMember::getRole
                 ));
-        System.out.println(userDetails);
-        System.out.println(userDetails
-                .stream().map(member ->
-                        FleetOperatorMembersResponse.builder()
-                                .role(userIdToRoleMap.get(member.getId()))
-                                .memberEmail(member.getEmail())
-                                .memberName(member.getName())
-                                .build()
-
-
-                ).toList());
         return userDetails
                 .stream().map(member ->
                     FleetOperatorMembersResponse.builder()
