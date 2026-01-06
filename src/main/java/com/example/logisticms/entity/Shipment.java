@@ -14,7 +14,8 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "shipments")
-@Data
+@Getter
+@Setter
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
@@ -80,6 +81,7 @@ public class Shipment extends BaseEntity {
             cascade = CascadeType.ALL,
             orphanRemoval = true
     )
+    @ToString.Exclude
     private List<ShipmentAssignment> assignments;
 
 

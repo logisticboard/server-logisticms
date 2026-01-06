@@ -3,6 +3,7 @@ package com.example.logisticms.service.impl;
 
 import com.example.logisticms.dto.*;
 import com.example.logisticms.entity.*;
+import com.example.logisticms.entity.enums.ShipmentAssignment;
 import com.example.logisticms.entity.enums.ShipmentStatus;
 import com.example.logisticms.exception.NoResourceFoundException;
 import com.example.logisticms.mapper.DriverMapper;
@@ -52,7 +53,16 @@ public class DriverServiceImpl {
     }
 
     public List<DriverShipment> getAllShipmentsForDriver(String phoneNumber, ShipmentStatus shipmentStatus, int page, int size) {
-        return shipmentAssignmentRepository.findShipmentsByDriverPhone(phoneNumber).stream().map((shipmentAssignment) -> ShipmentMapper.toDriverShipmentDto(shipmentAssignment.getShipment())).toList();
+        if(phoneNumber.startsWith("+91"))
+            phoneNumber = phoneNumber.substring(3);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "shipment.createdAt"));
+        Page<ShipmentAssignment> assignments ;
+        if(shipmentStatus != null)
+            assignments = shipmentAssignmentRepository.findByDriverPhoneAndShipmentStatus(phoneNumber, shipmentStatus, pageable);
+        else assignments = shipmentAssignmentRepository.findShipmentsByDriverPhone(phoneNumber, pageable);
+        return assignments.stream()
+                .map(assignment -> ShipmentMapper.toDriverShipmentDto(assignment.getShipment()))
+                .toList();
     }
 
 
@@ -61,10 +71,14 @@ public class DriverServiceImpl {
     }
 
     public List<DriverFleetOperatorResponse> getAllFleetOperatorsNameForDriver(String phoneNumber) {
+        if(phoneNumber.startsWith("+91"))
+            phoneNumber = phoneNumber.substring(3);
         return driverRepository.findByPhoneNumber(phoneNumber).stream().map(driver -> DriverFleetOperatorResponse.builder().fleetOperatorName(driver.getFleetOperator().getName()).fleetOperatorUid(driver.getFleetOperator().getId()).build()).distinct().toList();
     }
 
     public DriverProfileForFleetOperator getDriverProfileForFleetOperator(String phoneNumber, UUID fleetOperatorId) {
+        if(phoneNumber.startsWith("+91"))
+            phoneNumber = phoneNumber.substring(3);
         return driverRepository.findByPhoneNumberAndFleetOperator_Id(phoneNumber, fleetOperatorId).stream().findFirst().map(driver -> DriverProfileForFleetOperator.builder().fullName(driver.getName()).licenseNumber(driver.getLicenseNumber()).build()).orElseThrow(() -> new NoResourceFoundException("Driver not found for the given fleet operator"));
     }
 
