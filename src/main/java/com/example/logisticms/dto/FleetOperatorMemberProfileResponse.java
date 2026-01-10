@@ -26,5 +26,12 @@ public class FleetOperatorMemberProfileResponse {
         private String fleetOperatorName;
         private UUID fleetOperatorUid;
         private FleetOperatorRolesEnum role;
+        private String companyName;
+        private String imageUrl;
+        private String email;
+        private String phoneNumber;
+        private String address;
+        private String gstNumber;
+        private String description;
     }
 }

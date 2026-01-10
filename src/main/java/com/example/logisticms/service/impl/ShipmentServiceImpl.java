@@ -34,8 +34,13 @@ public class ShipmentServiceImpl {
         if (shipment.getShippers() != null && !shipment.getShippers().isEmpty()) {
             boolean isDriverAssignedToAllShippers = true;
             for (ShipmentCreateRequest.ShipperDataDto shipper : shipment.getShippers()) {
-                if (shipper.getDriverUids().isEmpty())
+                if (shipper.getDriverUids().isEmpty()){
                     isDriverAssignedToAllShippers = false;
+                    shipmentAssignments.add(ShipmentAssignment.builder()
+                            .truck(Truck.builder().id(shipper.getTruckUid()).build())
+                            .shipment(toSave)
+                            .build());
+                }
                 for (UUID driverUid : shipper.getDriverUids()) {
                     shipmentAssignments.add(ShipmentAssignment.builder()
                             .truck(Truck.builder().id(shipper.getTruckUid()).build())

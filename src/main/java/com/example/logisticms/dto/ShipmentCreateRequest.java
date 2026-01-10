@@ -38,7 +38,7 @@ public class ShipmentCreateRequest {
     @PositiveOrZero(message = "Estimated cost cannot be negative")
     private Double shipmentTotalEstimatedCost; // changed from String → Double
 
-    private List<ShipperDataDto> shippers;
+    private List<@Valid ShipperDataDto> shippers;
 
     @Size(max = 500, message = "Special instructions cannot exceed 500 characters")
     private String shipmentSpecialInstructions;
@@ -91,7 +91,9 @@ public class ShipmentCreateRequest {
 
     @Data
     public static class ShipperDataDto {
+        @NotNull
         private UUID truckUid;
+        @NotNull
         private List<UUID> driverUids;
     }
 }
