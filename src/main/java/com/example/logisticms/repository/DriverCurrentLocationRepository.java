@@ -6,6 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 import java.util.UUID;
 
-public interface DriverCurrentLocationRepository extends JpaRepository<DriverCurrentLocation, Long> {
+public interface DriverCurrentLocationRepository extends JpaRepository<DriverCurrentLocation, UUID> {
     List<DriverCurrentLocation> findByShipment_IdIn(List<UUID> shipmentIds);
 }

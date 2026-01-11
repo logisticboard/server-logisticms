@@ -25,8 +25,7 @@ public class DriverController {
     @PreAuthorize("hasRole('DRIVER')")
     @GetMapping("/shipments")
     public ApiResponseDTO<List<DriverShipment>> getAllShipmentsForFleetOperatorDriver(  @RequestParam(required = false) ShipmentStatus shipmentStatus,
-                                                                                        @RequestParam(defaultValue = "0") int page,
-                                                                                        @RequestParam(defaultValue = "10") int size) {
+                                                                                        @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
         String phoneNumber = (SecurityContextHolder
                 .getContext()
                 .getAuthentication()
@@ -77,21 +76,10 @@ public class DriverController {
                 .success(true)
                 .data(driverService.getShipmentTrack(shipmentId, phoneNumber))
                 .build();
-    } 
+    }
 
-//    @GetMapping
-//    public ApiResponseDTO<List<DriverDto>> getAllDrivers() {
-//        UUID userId = UUID.fromString((SecurityContextHolder
-//                .getContext()
-//                .getAuthentication()
-//                .getPrincipal()).toString());
-//        FleetOperator fleetOperator = fleetOperatorService.getFleetOperatorForMember(userId);
-//        return ApiResponseDTO.<List<DriverDto>>builder()
-//                .message("Drivers retrieved successfully")
-//                .success(true)
-//                .data(driverService.getAllDriverByFleetOperator(fleetOperator))
-//                .build();
-//    }
+
+
 
     @GetMapping("/{id}")
     public ApiResponseDTO<DriverDto> getDriverById(@PathVariable UUID id) {
@@ -101,6 +89,20 @@ public class DriverController {
                 .message("Driver Profile retrieved successfully")
                 .success(true)
                 .data(driverService.getDriverById(id))
+                .build();
+    }
+
+    @PreAuthorize("hasRole('DRIVER')")
+    @PutMapping("/shipment/{shipmentId}/location")
+    public ApiResponseDTO<Void> updateDriverLocation(@RequestBody DriverLocationUpdateRequest request, @PathVariable UUID shipmentId) {
+        String phoneNumber = (SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal()).toString();
+        driverService.updateDriverLocation(shipmentId, phoneNumber, request);
+        return ApiResponseDTO.<Void>builder()
+                .success(true)
+                .message("Driver location updated successfully")
                 .build();
     }
 }

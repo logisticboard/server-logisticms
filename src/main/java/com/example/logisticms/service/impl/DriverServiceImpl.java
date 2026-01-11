@@ -9,6 +9,7 @@ import com.example.logisticms.exception.NoResourceFoundException;
 import com.example.logisticms.mapper.DriverMapper;
 import com.example.logisticms.mapper.ShipmentMapper;
 import com.example.logisticms.mapper.TrackingMapper;
+import com.example.logisticms.repository.DriverCurrentLocationRepository;
 import com.example.logisticms.repository.DriverRepository;
 import com.example.logisticms.repository.ShipmentAssignmentRepository;
 import com.example.logisticms.repository.ShipmentRepository;
@@ -30,6 +31,7 @@ public class DriverServiceImpl {
     private final ShipmentRepository shipmentRepository;
     private final TrackingRepository trackingRepository;
     private final ShipmentAssignmentRepository shipmentAssignmentRepository;
+    private final DriverCurrentLocationRepository driverCurrentLocationRepository;
 
 
     public DriverDto createOrUpdateDriver(DriverDto driverDto, UUID userId) {
@@ -80,6 +82,21 @@ public class DriverServiceImpl {
         if(phoneNumber.startsWith("+91"))
             phoneNumber = phoneNumber.substring(3);
         return driverRepository.findByPhoneNumberAndFleetOperator_Id(phoneNumber, fleetOperatorId).stream().findFirst().map(driver -> DriverProfileForFleetOperator.builder().fullName(driver.getName()).licenseNumber(driver.getLicenseNumber()).build()).orElseThrow(() -> new NoResourceFoundException("Driver not found for the given fleet operator"));
+    }
+
+    public void updateDriverLocation(UUID shipmentId, String phoneString, DriverLocationUpdateRequest request) {
+        Driver driver = driverRepository.findByPhoneNumber(phoneString.startsWith("+91") ? phoneString.substring(3) : phoneString)
+            .stream()
+            .findFirst()
+            .orElseThrow(() -> new NoResourceFoundException("Driver not found with phone number: " + phoneString));
+        driverCurrentLocationRepository.save(
+                DriverCurrentLocation.builder()
+                        .driverId(driver.getId())
+                        .latitude(request.getLatitude())
+                        .longitude(request.getLongitude())
+                        .shipment(Shipment.builder().id(shipmentId).build())
+                        .build()
+        );
     }
 
 

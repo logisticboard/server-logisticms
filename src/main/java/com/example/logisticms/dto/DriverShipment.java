@@ -1,6 +1,7 @@
 package com.example.logisticms.dto;
 
 import com.example.logisticms.entity.ContactDetails;
+import com.example.logisticms.entity.Location;
 import com.example.logisticms.entity.enums.ShipmentStatus;
 import lombok.*;
 
@@ -18,8 +19,8 @@ public class DriverShipment {
     private String shipmentName;
     private ShipmentStatus shipmentStatus;
     private String shipmentId;
-    private String pickupLocationAddress;
-    private String deliveryLocationAddress;
+    private Location pickupLocation;
+    private Location deliveryLocation;
     private LocalDateTime shipmentPickupDate;
     private Double shipmentWeight;
     private String shipmentSpecialInstructions;
