@@ -8,6 +8,8 @@ import com.example.logisticms.mapper.FleetOperatorMapper;
 import com.example.logisticms.service.impl.FleetOperatorRoleServiceImpl;
 import com.example.logisticms.service.impl.FleetOperatorServiceImpl;
 import com.example.logisticms.service.impl.TruckServiceImpl;
+import com.example.logisticms.service.util.UpstreamHeaderUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -20,7 +22,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/fleetoperators")
+@RequestMapping("/v1/fleetoperators")
 @RequiredArgsConstructor
 @Validated
 public class FleetOperatorController {
@@ -30,11 +32,8 @@ public class FleetOperatorController {
 
 
     @PostMapping
-    public ApiResponseDTO<FleetOperatorDto> createFleetOperator(@RequestBody @Valid FleetOperatorDto fleetOperatorDto){
-        UUID userId =  UUID.fromString((String)SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getPrincipal());
+    public ApiResponseDTO<FleetOperatorDto> createFleetOperator(HttpServletRequest httpServletRequest, @RequestBody @Valid FleetOperatorDto fleetOperatorDto){
+        UUID userId = UpstreamHeaderUtil.getUserId(httpServletRequest);
         FleetOperator fleetOperator = fleetOperatorService.createFleetOperator(fleetOperatorDto);
         fleetOperatorRoleService.addMemberToFleetOperator(fleetOperator, FleetOperatorRolesEnum.ADMIN, userId);
         return ApiResponseDTO.<FleetOperatorDto>builder()
@@ -45,17 +44,14 @@ public class FleetOperatorController {
     }
 
     @PutMapping("/{fleetOperatorId}")
-    public ApiResponseDTO<FleetOperatorDto> updateFleetOperator(@RequestBody @Valid FleetOperatorDto fleetOperatorDto,
+    public ApiResponseDTO<FleetOperatorDto> updateFleetOperator(HttpServletRequest httpServletRequest, @RequestBody @Valid FleetOperatorDto fleetOperatorDto,
                                                                 @PathVariable UUID fleetOperatorId){
-        UUID userId =  UUID.fromString((String)SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getPrincipal());
+        UUID userId = UpstreamHeaderUtil.getUserId(httpServletRequest);
         if(fleetOperatorRoleService.isUserAdminOfFleetOperator(fleetOperatorId, userId)){
             FleetOperator fleetOperator = fleetOperatorService.updateFleetOperator(fleetOperatorDto, fleetOperatorId);
             fleetOperatorRoleService.addMemberToFleetOperator(fleetOperator, FleetOperatorRolesEnum.ADMIN, userId);
             return ApiResponseDTO.<FleetOperatorDto>builder()
-                    .message("Company data updated successfully")
+                    .message("Fleet data updated successfully")
                     .data(FleetOperatorMapper.toDto(fleetOperator))
                     .success(true)
                     .build();
@@ -65,11 +61,8 @@ public class FleetOperatorController {
 
 
     @GetMapping
-    public ApiResponseDTO<List<FleetOperatorDto>> getFleetOperators(){
-        UUID userId =  UUID.fromString((String)SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getPrincipal());
+    public ApiResponseDTO<List<FleetOperatorDto>> getFleetOperators(HttpServletRequest httpServletRequest){
+        UUID userId =  UpstreamHeaderUtil.getUserId(httpServletRequest);
         return ApiResponseDTO.<List<FleetOperatorDto>>builder()
                 .message("Fleet Operators retrieved successfully")
                 .data(fleetOperatorRoleService.getFleetOperatorsByUserId(userId))
@@ -80,38 +73,24 @@ public class FleetOperatorController {
 
     @GetMapping("/members/{fleetOperatorId}")
     public ApiResponseDTO<List<FleetOperatorMembersResponse>> getMembersInFleetOperator(
-                                                                @PathVariable @NotBlank
-                                                                @Pattern(
-                                                                        regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
-                                                                        message = "companyId must be a valid UUID"
-                                                                )
-                                                                String fleetOperatorId){
-        UUID userId =  UUID.fromString((String)SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getPrincipal());
+            HttpServletRequest httpServletRequest, UUID fleetOperatorId){
+        UUID userId =  UpstreamHeaderUtil.getUserId(httpServletRequest);
         return ApiResponseDTO.<List<FleetOperatorMembersResponse>>builder()
                     .message("Company members retrieved successfully")
-                    .data(fleetOperatorRoleService.getFleetOperatorsMembers(userId, UUID.fromString(fleetOperatorId)))
+                    .data(fleetOperatorRoleService.getFleetOperatorsMembers(userId, fleetOperatorId, httpServletRequest))
                     .success(true)
                     .build();
     }
 
     @PostMapping("/members/{fleetOperatorId}")
-    public ApiResponseDTO<Void> createOrUpdateFleetMemberData(@PathVariable @NotBlank
-                                                                  @Pattern(
-                                                                          regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
-                                                                          message = "companyId must be a valid UUID"
-                                                                  )
-                                                                  String fleetOperatorId,
-                                                              @RequestBody @Valid MemberDataUpdateRequest data) {
-        UUID userId =  UUID.fromString((String)SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getPrincipal());
-        if(fleetOperatorRoleService.isUserAdminOfFleetOperator(UUID.fromString(fleetOperatorId), userId)){
+    public ApiResponseDTO<Void> createOrUpdateFleetMemberData(
+            HttpServletRequest httpServletRequest, UUID fleetOperatorId,
+            @RequestBody @Valid MemberDataUpdateRequest data
+    ) {
+        UUID userId =  UpstreamHeaderUtil.getUserId(httpServletRequest);
+        if(fleetOperatorRoleService.isUserAdminOfFleetOperator(fleetOperatorId, userId)){
 //            TODO: check if admin is conveting to manger then there should be atleast one admin left
-            fleetOperatorRoleService.upsertFleetOperatorMemberData(UUID.fromString(fleetOperatorId), data);
+            fleetOperatorRoleService.upsertFleetOperatorMemberData(fleetOperatorId, data, httpServletRequest);
             return ApiResponseDTO.<Void>builder()
                     .message("Fleet Operator member data updated successfully")
                     .success(true)
@@ -122,11 +101,8 @@ public class FleetOperatorController {
 
 
     @PostMapping("{fleetOperatorId}/trucks")
-    public ApiResponseDTO<TruckDto> createTruck(@PathVariable UUID fleetOperatorId, @RequestBody @Valid TruckDto truckDto) {
-        UUID userId =  UUID.fromString((String)SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getPrincipal());
+    public ApiResponseDTO<TruckDto> createTruck(HttpServletRequest httpServletRequest, @PathVariable UUID fleetOperatorId, @RequestBody @Valid TruckDto truckDto) {
+        UUID userId =  UpstreamHeaderUtil.getUserId(httpServletRequest);
         if(!fleetOperatorRoleService.isUserAdminOfFleetOperator(fleetOperatorId, userId)){
             throw new UnauthorizedOperationException("User is not authorized to update trucks of this Fleet Operator!");
         }
@@ -139,11 +115,8 @@ public class FleetOperatorController {
     }
 
     @PutMapping("{fleetOperatorId}/trucks/{truckId}")
-    public ApiResponseDTO<TruckDto> updateTruck(@PathVariable UUID fleetOperatorId, @PathVariable UUID truckId, @RequestBody TruckDto truckDto) {
-        UUID userId =  UUID.fromString((String)SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getPrincipal());
+    public ApiResponseDTO<TruckDto> updateTruck(HttpServletRequest httpServletRequest, @PathVariable UUID fleetOperatorId, @PathVariable UUID truckId, @RequestBody TruckDto truckDto) {
+        UUID userId =  UpstreamHeaderUtil.getUserId(httpServletRequest);
         if(!fleetOperatorRoleService.isUserAdminOfFleetOperator(fleetOperatorId, userId)){
             throw new UnauthorizedOperationException("User is not authorized to update trucks of this Fleet Operator!");
         }
@@ -156,11 +129,8 @@ public class FleetOperatorController {
     }
 
     @GetMapping("/{fleetOperatorId}/trucks")
-    public ApiResponseDTO<List<TruckDto>> getTrucksByFleetOperator(@PathVariable UUID fleetOperatorId) {
-        UUID userId =  UUID.fromString((String)SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getPrincipal());
+    public ApiResponseDTO<List<TruckDto>> getTrucksByFleetOperator(HttpServletRequest httpServletRequest, @PathVariable UUID fleetOperatorId) {
+        UUID userId =  UpstreamHeaderUtil.getUserId(httpServletRequest);
         if(!fleetOperatorRoleService.isUserMemberOfFleetOperator(fleetOperatorId, userId)){
             throw new UnauthorizedOperationException("User is not authorized to view trucks of this Fleet Operator!");
         }
@@ -172,11 +142,8 @@ public class FleetOperatorController {
     }
 
     @GetMapping("/{fleetOperatorId}/drivers/unassigned")
-    public ApiResponseDTO<List<DriverDto>> getUnAssignedDriverByFleetOperator(@PathVariable UUID fleetOperatorId) {
-        UUID userId =  UUID.fromString((String)SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getPrincipal());
+    public ApiResponseDTO<List<DriverDto>> getUnAssignedDriverByFleetOperator(HttpServletRequest httpServletRequest, @PathVariable UUID fleetOperatorId) {
+        UUID userId =  UpstreamHeaderUtil.getUserId(httpServletRequest);
         if(!fleetOperatorRoleService.isUserMemberOfFleetOperator(fleetOperatorId, userId)){
             throw new UnauthorizedOperationException("User is not authorized to view trucks of this Fleet Operator!");
         }
@@ -188,11 +155,8 @@ public class FleetOperatorController {
     }
 
     @PostMapping("/{fleetOperatorId}/drivers")
-    public ApiResponseDTO<DriverDto> createDriver(@PathVariable UUID fleetOperatorId, @RequestBody @Valid DriverDto driverDto) {
-        UUID userId =  UUID.fromString((String)SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getPrincipal());
+    public ApiResponseDTO<DriverDto> createDriver(HttpServletRequest httpServletRequest, @PathVariable UUID fleetOperatorId, @RequestBody @Valid DriverDto driverDto) {
+        UUID userId =  UpstreamHeaderUtil.getUserId(httpServletRequest);
         if(!fleetOperatorRoleService.isUserAdminOfFleetOperator(fleetOperatorId, userId)){
             throw new UnauthorizedOperationException("User is not authorized to update drivers of this Fleet Operator!");
         }
@@ -204,13 +168,10 @@ public class FleetOperatorController {
     }
 
     @PutMapping("/{fleetOperatorId}/drivers/{driverId}")
-    public ApiResponseDTO<DriverDto> updateDriver(@PathVariable UUID fleetOperatorId,
+    public ApiResponseDTO<DriverDto> updateDriver(HttpServletRequest httpServletRequest, @PathVariable UUID fleetOperatorId,
                                                   @PathVariable UUID driverId,
                                                   @RequestBody @Valid DriverDto driverDto) {
-        UUID userId =  UUID.fromString((String)SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getPrincipal());
+        UUID userId =  UpstreamHeaderUtil.getUserId(httpServletRequest);
 //        TODO: in future driver can also update his own data(only name, phone number, license number) so need to handle that case
         if(!fleetOperatorRoleService.isUserAdminOfFleetOperator(fleetOperatorId, userId)){
             throw new UnauthorizedOperationException("User is not authorized to update drivers of this Fleet Operator!");
@@ -223,11 +184,8 @@ public class FleetOperatorController {
     }
 
     @GetMapping("/{fleetOperatorId}/drivers")
-    public ApiResponseDTO<List<DriverDto>> getDriversByFleetOperator(@PathVariable UUID fleetOperatorId) {
-        UUID userId =  UUID.fromString((String)SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getPrincipal());
+    public ApiResponseDTO<List<DriverDto>> getDriversByFleetOperator(HttpServletRequest httpServletRequest, @PathVariable UUID fleetOperatorId) {
+        UUID userId =  UpstreamHeaderUtil.getUserId(httpServletRequest);
         if(!fleetOperatorRoleService.isUserMemberOfFleetOperator(fleetOperatorId, userId)){
             throw new UnauthorizedOperationException("User is not authorized to view drivers of this Fleet Operator!");
         }
@@ -239,14 +197,11 @@ public class FleetOperatorController {
     }
 
     @GetMapping("/member/profile")
-    public ApiResponseDTO<FleetOperatorMemberProfileResponse> getMembersProfileDataInFleetOperator(){
-        UUID userId =  UUID.fromString((String)SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getPrincipal());
+    public ApiResponseDTO<FleetOperatorMemberProfileResponse> getMembersProfileDataInFleetOperator(HttpServletRequest httpServletRequest){
+        UUID userId =  UpstreamHeaderUtil.getUserId(httpServletRequest);
             return ApiResponseDTO.<FleetOperatorMemberProfileResponse>builder()
                     .message("Company members retrieved successfully")
-                    .data(fleetOperatorRoleService.getFleetOperatorMemberProfileById(userId))
+                    .data(fleetOperatorRoleService.getFleetOperatorMemberProfileById(userId, httpServletRequest))
                     .success(true)
                     .build();
     }

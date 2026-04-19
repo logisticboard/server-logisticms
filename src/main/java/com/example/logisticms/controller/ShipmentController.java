@@ -12,6 +12,8 @@ import com.example.logisticms.service.impl.FleetOperatorRoleServiceImpl;
 import com.example.logisticms.service.impl.FleetOperatorServiceImpl;
 import com.example.logisticms.service.impl.ShipmentMetricsServiceImpl;
 import com.example.logisticms.service.impl.ShipmentServiceImpl;
+import com.example.logisticms.service.util.UpstreamHeaderUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +28,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/v1")
 @RequiredArgsConstructor
 @Validated
 public class ShipmentController {
@@ -40,11 +42,8 @@ public class ShipmentController {
 
 
     @PostMapping("/fleetoperators/{fleetOperatorId}/shipments")
-    public ApiResponseDTO<ShipmentCreateResponse> createShipment(@RequestBody @Valid ShipmentCreateRequest shipment, @PathVariable UUID fleetOperatorId) {
-        UUID userId = UUID.fromString((String) SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getPrincipal());
+    public ApiResponseDTO<ShipmentCreateResponse> createShipment(HttpServletRequest httpServletRequest, @RequestBody @Valid ShipmentCreateRequest shipment, @PathVariable UUID fleetOperatorId) {
+        UUID userId = UpstreamHeaderUtil.getUserId(httpServletRequest);
         if (fleetOperatorRoleService.isUserAdminOfFleetOperator(fleetOperatorId, userId)) {
             FleetOperator fleetOperator = fleetOperatorService.getFleetOperatorById(fleetOperatorId);
             Shipment shipmentResponse = shipmentService.createShipment(shipment, fleetOperator);
@@ -69,14 +68,12 @@ public class ShipmentController {
 
     @GetMapping("/fleetoperators/{fleetOperatorId}/shipments")
     public ApiResponseDTO<ShipmentSummaryResponse> getAllShipmentsSummary(
+            HttpServletRequest httpServletRequest,
             @PathVariable UUID fleetOperatorId,
             @RequestParam(value = "shipmentStatus", required = false) ShipmentStatus shipmentStatus,
             @RequestParam(value = "page", required = false, defaultValue = "0") int page,
             @RequestParam(value = "size", required = false, defaultValue = "100") int size) {
-        UUID userId = UUID.fromString((String) SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getPrincipal());
+        UUID userId = UpstreamHeaderUtil.getUserId(httpServletRequest);
         if (fleetOperatorRoleService.isUserMemberOfFleetOperator(fleetOperatorId, userId)) {
             return ApiResponseDTO.<ShipmentSummaryResponse>builder()
                     .data(shipmentService.getAllShipmentsSummary(fleetOperatorId, shipmentStatus, page, size))
@@ -117,11 +114,8 @@ public class ShipmentController {
     }
 
     @GetMapping("/fleetoperators/{fleetOperatorId}/shipments/overview")
-    public ApiResponseDTO<ShipmentOverviewResponse> getShipmentOverview(@PathVariable UUID fleetOperatorId) {
-        UUID userId = UUID.fromString((String) SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getPrincipal());
+    public ApiResponseDTO<ShipmentOverviewResponse> getShipmentOverview(HttpServletRequest httpServletRequest, @PathVariable UUID fleetOperatorId) {
+        UUID userId = UpstreamHeaderUtil.getUserId(httpServletRequest);
         if (fleetOperatorRoleService.isUserMemberOfFleetOperator(fleetOperatorId, userId)) {
             return ApiResponseDTO.<ShipmentOverviewResponse>builder()
                     .data(shipmentService.getShipmentOverview(fleetOperatorId))
@@ -134,13 +128,11 @@ public class ShipmentController {
 
     @GetMapping("/fleetoperators/{fleetOperatorId}/shipments/transaction-history")
     public ApiResponseDTO<org.springframework.data.domain.Page<TransactionHistoryItemDto>> getTransactionHistory(
+            HttpServletRequest httpServletRequest,
             @PathVariable UUID fleetOperatorId,
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "20") int size) {
-        UUID userId = UUID.fromString((String) SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getPrincipal());
+        UUID userId = UpstreamHeaderUtil.getUserId(httpServletRequest);
         if (fleetOperatorRoleService.isUserMemberOfFleetOperator(fleetOperatorId, userId)) {
             return ApiResponseDTO.<org.springframework.data.domain.Page<TransactionHistoryItemDto>>builder()
                     .data(shipmentService.getTransactionHistory(fleetOperatorId, page, size))
@@ -153,13 +145,11 @@ public class ShipmentController {
 
     @GetMapping("/fleetoperators/{fleetOperatorId}/dashboard/shipment-metrics")
     public ApiResponseDTO<ShipmentMetricsResponse> getShipmentMetrics(
+            HttpServletRequest httpServletRequest,
             @PathVariable UUID fleetOperatorId,
             @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
-        UUID userId = UUID.fromString((String) SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getPrincipal());
+        UUID userId = UpstreamHeaderUtil.getUserId(httpServletRequest);
         if(fleetOperatorRoleService.isUserMemberOfFleetOperator(fleetOperatorId, userId)) {
             ShipmentMetricsResponse metrics = shipmentMetricsService.getShipmentMetrics(fleetOperatorId, startDate, endDate);
             return ApiResponseDTO.<ShipmentMetricsResponse>builder()

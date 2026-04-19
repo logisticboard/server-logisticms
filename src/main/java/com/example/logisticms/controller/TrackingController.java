@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/tracking")
+@RequestMapping("v1/tracking")
 @RequiredArgsConstructor
 public class TrackingController {
 

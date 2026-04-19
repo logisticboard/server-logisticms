@@ -4,6 +4,7 @@ import com.example.logisticms.dto.ApiResponseDTO;
 import com.example.logisticms.dto.UserDetailsDto;
 import com.example.logisticms.exception.LoginMsException;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
@@ -12,6 +13,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -27,12 +29,25 @@ public class LoginMsClient {
 
     private final RestTemplate restTemplate = new RestTemplate();
 
-    public List<UserDetailsDto> getUserDetailsByIds(List<UUID> userIdList) {
-        String url = loginMsUrl + "/api/users/batch-by-userid";
+    public List<UserDetailsDto> getUserDetailsByIds(List<UUID> userIdList, HttpServletRequest httpServletRequest) {
+        String url = loginMsUrl + "/api/v1/users/batch-by-userid";
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("X-Internal-Token", internalApiKey);
+        Enumeration<String> headerNames = httpServletRequest.getHeaderNames();
+
+        while (headerNames.hasMoreElements()) {
+            String headerName = headerNames.nextElement();
+
+            if (headerName.toLowerCase().startsWith("x-")) {
+                Enumeration<String> values = httpServletRequest.getHeaders(headerName);
+
+                while (values.hasMoreElements()) {
+                    headers.add(headerName, values.nextElement());
+                }
+            }
+        }
+
 
         HttpEntity<List<UUID>> entity = new HttpEntity<>(userIdList, headers);
 
@@ -84,11 +99,24 @@ public class LoginMsClient {
         }
     }
 
-    public List<UserDetailsDto> getUserDetailsByEmailIds(List<String> emailsIdList) {
-        String url = loginMsUrl + "/api/users/batch-by-user-email";
+    public List<UserDetailsDto> getUserDetailsByEmailIds(List<String> emailsIdList, HttpServletRequest httpServletRequest) {
+        String url = loginMsUrl + "/api/v1/users/batch-by-user-email";
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("X-Internal-Token", internalApiKey);
+        Enumeration<String> headerNames = httpServletRequest.getHeaderNames();
+
+        while (headerNames.hasMoreElements()) {
+            String headerName = headerNames.nextElement();
+
+            if (headerName.toLowerCase().startsWith("x-")) {
+                Enumeration<String> values = httpServletRequest.getHeaders(headerName);
+
+                while (values.hasMoreElements()) {
+                    headers.add(headerName, values.nextElement());
+                }
+            }
+        }
+
 
         HttpEntity<List<String>> entity = new HttpEntity<>(emailsIdList, headers);
 
@@ -98,7 +126,7 @@ public class LoginMsClient {
                             url,
                             HttpMethod.POST,
                             entity,
-                            new ParameterizedTypeReference<ApiResponseDTO<List<UserDetailsDto>>>() {}
+                            new ParameterizedTypeReference<>() {}
                     );
             Objects.requireNonNull(response.getBody());
             if(response.getBody() != null && Boolean.TRUE.equals(response.getBody().isSuccess())){

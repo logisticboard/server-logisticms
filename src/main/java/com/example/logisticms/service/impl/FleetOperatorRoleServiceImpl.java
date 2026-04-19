@@ -8,6 +8,7 @@ import com.example.logisticms.exception.NoResourceFoundException;
 import com.example.logisticms.mapper.FleetOperatorMapper;
 import com.example.logisticms.repository.FleetOperatorMemberRepository;
 import com.example.logisticms.service.client.LoginMsClient;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -50,13 +51,15 @@ public class FleetOperatorRoleServiceImpl {
     }
 
 
-    public List<FleetOperatorMembersResponse> getFleetOperatorsMembers(UUID userId, UUID fleetOperatorId) {
+    public List<FleetOperatorMembersResponse> getFleetOperatorsMembers(UUID userId, UUID fleetOperatorId, HttpServletRequest httpServletRequest) {
         List<FleetOperatorMember> fleetOperatorMemberList =
                 fleetOperatorMemberRepository.findByIdFleetOperatorId(fleetOperatorId);
         List<UserDetailsDto> userDetails = loginMsClient.getUserDetailsByIds(
                 fleetOperatorMemberList.stream()
                         .map(member -> member.getId().getUserId())
-                        .toList()
+                        .toList(),
+                httpServletRequest
+
         );
         Map<UUID, FleetOperatorRolesEnum> userIdToRoleMap = fleetOperatorMemberList.stream()
                 .collect(Collectors.toMap(
@@ -75,9 +78,10 @@ public class FleetOperatorRoleServiceImpl {
                 ).toList();
     }
 
-    public void upsertFleetOperatorMemberData(UUID fleetOperatorId, MemberDataUpdateRequest data) {
+    public void upsertFleetOperatorMemberData(UUID fleetOperatorId, MemberDataUpdateRequest data, HttpServletRequest httpServletRequest) {
         List<UserDetailsDto> userDetailsDtos = loginMsClient.getUserDetailsByEmailIds(
-                List.of(data.getEmail())
+                List.of(data.getEmail()),
+                httpServletRequest
         );
         FleetOperatorMember fleetOperatorMemberData = FleetOperatorMember.builder()
                 .id(FleetOperatorMemberId.builder()
@@ -97,9 +101,10 @@ public class FleetOperatorRoleServiceImpl {
         );
     }
 
-    public FleetOperatorMemberProfileResponse getFleetOperatorMemberProfileById(UUID memberId) {
+    public FleetOperatorMemberProfileResponse getFleetOperatorMemberProfileById(UUID memberId, HttpServletRequest httpServletRequest) {
         UserDetailsDto userDetails = loginMsClient.getUserDetailsByIds(
-                List.of(memberId)
+                List.of(memberId),
+                httpServletRequest
         ).getFirst();
         List<FleetOperatorMember> fleetOperatorMember = fleetOperatorMemberRepository.findByIdUserId(memberId);
         return FleetOperatorMemberProfileResponse.builder()
