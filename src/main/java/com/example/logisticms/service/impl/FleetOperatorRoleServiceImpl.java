@@ -51,7 +51,7 @@ public class FleetOperatorRoleServiceImpl {
     }
 
 
-    public List<FleetOperatorMembersResponse> getFleetOperatorsMembers(UUID userId, UUID fleetOperatorId, HttpServletRequest httpServletRequest) {
+    public List<FleetOperatorMembersResponse> getFleetOperatorsMembers(UUID fleetOperatorId, HttpServletRequest httpServletRequest) {
         List<FleetOperatorMember> fleetOperatorMemberList =
                 fleetOperatorMemberRepository.findByIdFleetOperatorId(fleetOperatorId);
         List<UserDetailsDto> userDetails = loginMsClient.getUserDetailsByIds(
@@ -111,6 +111,7 @@ public class FleetOperatorRoleServiceImpl {
                 .name(userDetails.getName())
                 .email(userDetails.getEmail())
                 .phone(userDetails.getPhone())
+                .userId(memberId)
                 .fleetOperatorData(
                         fleetOperatorMember
                                 .stream()

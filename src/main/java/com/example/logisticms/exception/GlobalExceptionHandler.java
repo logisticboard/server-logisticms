@@ -7,13 +7,14 @@ import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
@@ -30,9 +31,31 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(dto);
     }
 
-    @ExceptionHandler(LoginMsException.class)
-    public ResponseEntity<ApiResponseDTO<Void>> handleException(LoginMsException exception, WebRequest webRequest){
+    @ExceptionHandler(ClientException.class)
+    public ResponseEntity<ApiResponseDTO<Void>> handleException(ClientException exception, WebRequest webRequest){
         return ResponseEntity.status(exception.getResponse().getErrorCode()).body(exception.getResponse());
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ApiResponseDTO<Void>> handleAuthenticationException(AuthenticationException exception, WebRequest webRequest){
+        ApiResponseDTO<Void> dto = ApiResponseDTO.error(
+                webRequest.getDescription(false).replace("uri=", ""),
+                HttpStatus.UNAUTHORIZED,
+                "Unauthorized: Invalid or expired token",
+                LocalDateTime.now().toString()
+        );
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(dto);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ApiResponseDTO<Void>> handleAccessDeniedException(AccessDeniedException exception, WebRequest webRequest){
+        ApiResponseDTO<Void> dto = ApiResponseDTO.error(
+                webRequest.getDescription(false).replace("uri=", ""),
+                HttpStatus.FORBIDDEN,
+                "Access Denied: You do not have permission to access this resource",
+                LocalDateTime.now().toString()
+        );
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(dto);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

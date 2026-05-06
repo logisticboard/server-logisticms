@@ -16,6 +16,7 @@ public class FleetOperatorMemberProfileResponse {
     private String name;
     private String email;
     private String phone;
+    private UUID userId;
     private List<FleetOperatorData> fleetOperatorData;
 
     @Data

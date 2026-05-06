@@ -42,4 +42,13 @@ public class ApiResponseDTO<T> {
         return response;
     }
 
+    public static <T> ApiResponseDTO<T> success(String apiPath, String message, T data){
+        ApiResponseDTO<T> response = new ApiResponseDTO<>();
+        response.setSuccess(true);
+        response.setMessage(message);
+        response.setApiPath(apiPath);
+        response.setData(data);
+        return response;
+    }
+
 }

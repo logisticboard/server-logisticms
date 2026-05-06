@@ -75,9 +75,10 @@ public class FleetOperatorController {
     public ApiResponseDTO<List<FleetOperatorMembersResponse>> getMembersInFleetOperator(
             HttpServletRequest httpServletRequest, UUID fleetOperatorId){
         UUID userId =  UpstreamHeaderUtil.getUserId(httpServletRequest);
+//        TODO: check if user is part of fleet
         return ApiResponseDTO.<List<FleetOperatorMembersResponse>>builder()
                     .message("Company members retrieved successfully")
-                    .data(fleetOperatorRoleService.getFleetOperatorsMembers(userId, fleetOperatorId, httpServletRequest))
+                    .data(fleetOperatorRoleService.getFleetOperatorsMembers(fleetOperatorId, httpServletRequest))
                     .success(true)
                     .build();
     }

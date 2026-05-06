@@ -7,9 +7,12 @@ import com.example.logisticms.entity.enums.ShipmentAssignment;
 import com.example.logisticms.entity.enums.ShipmentStatus;
 import com.example.logisticms.exception.NoResourceFoundException;
 import com.example.logisticms.mapper.ShipmentMapper;
+import com.example.logisticms.repository.ActivityRepository;
 import com.example.logisticms.repository.DriverCurrentLocationRepository;
 import com.example.logisticms.repository.ShipmentRepository;
 import com.example.logisticms.repository.TrackingRepository;
+import com.example.logisticms.service.client.CommuncationMsClient;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -26,15 +29,26 @@ public class ShipmentServiceImpl {
     private final ShipmentRepository shipmentRepository;
     private final TrackingRepository trackingRepository;
     private final DriverCurrentLocationRepository driverCurrentLocationRepository;
+    private final GeocodingService geocodingService;
+    private final CommuncationMsClient communcationMsClient;
+    private final ActivityRepository activityRepository;
 
-    public Shipment createShipment(ShipmentCreateRequest shipment, FleetOperator fleetOperator) {
+
+    public Shipment createShipment(ShipmentCreateRequest shipment, FleetOperator fleetOperator, HttpServletRequest httpServletRequest) {
+        GeoResult deliveryLocationGeoResult = geocodingService.geocode(shipment.getDeliveryLocation().getAddress());
+        GeoResult pickupLocationGeoResult = geocodingService.geocode(shipment.getPickupLocation().getAddress());
+        shipment.getDeliveryLocation().setLatitude(deliveryLocationGeoResult.getLat());
+        shipment.getDeliveryLocation().setLongitude(deliveryLocationGeoResult.getLng());
+        shipment.getPickupLocation().setLongitude(pickupLocationGeoResult.getLng());
+        shipment.getPickupLocation().setLatitude(pickupLocationGeoResult.getLat());
+
         ShipmentStatus shipmentStatus = ShipmentStatus.CREATED;
         Shipment toSave = ShipmentMapper.toEntity(shipment, shipmentStatus, fleetOperator);
         List<ShipmentAssignment> shipmentAssignments = new ArrayList<>();
         if (shipment.getShippers() != null && !shipment.getShippers().isEmpty()) {
             boolean isDriverAssignedToAllShippers = true;
             for (ShipmentCreateRequest.ShipperDataDto shipper : shipment.getShippers()) {
-                if (shipper.getDriverUids().isEmpty()){
+                if (shipper.getDriverUids().isEmpty()) {
                     isDriverAssignedToAllShippers = false;
                     shipmentAssignments.add(ShipmentAssignment.builder()
                             .truck(Truck.builder().id(shipper.getTruckUid()).build())
@@ -61,6 +75,30 @@ public class ShipmentServiceImpl {
                 .timestamp(shipmentSavedEntity.getCreatedAt())
                 .shipmentStatus(shipmentStatus)
                 .build());
+
+        List<CreateActivityConversationRequest.ParticipantInfo> participantInfos =
+                fleetOperator.getMembers().stream().map(
+                        fleetOperatorMember -> CreateActivityConversationRequest.ParticipantInfo.builder()
+                                .userId(fleetOperatorMember.getId().getUserId())
+                                .role(FleetOperatorRolesEnum.ADMIN.equals(fleetOperatorMember.getRole()) ? ParticipantRole.ADMIN : ParticipantRole.MEMBER)
+                                .build()
+                ).toList();
+        CreateActivityConversationRequest createActivityConversationRequest = CreateActivityConversationRequest.builder()
+                .conversationType(ConversationType.ACTIVITY)
+                .participantIds(participantInfos)
+                .name("Activity Chat")
+                .build();
+        ConversationResponse conversationResponse = communcationMsClient.createActivityConversation(
+                createActivityConversationRequest,
+                httpServletRequest
+        );
+        Activity activity = Activity.builder()
+                .conversationId(conversationResponse.getId())
+                .shipment(shipmentSavedEntity)
+                .fleetOperator(fleetOperator)
+                .build();
+        activityRepository.save(activity);
+
         return shipmentSavedEntity;
     }
 

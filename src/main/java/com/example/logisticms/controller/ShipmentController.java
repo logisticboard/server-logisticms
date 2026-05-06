@@ -46,7 +46,7 @@ public class ShipmentController {
         UUID userId = UpstreamHeaderUtil.getUserId(httpServletRequest);
         if (fleetOperatorRoleService.isUserAdminOfFleetOperator(fleetOperatorId, userId)) {
             FleetOperator fleetOperator = fleetOperatorService.getFleetOperatorById(fleetOperatorId);
-            Shipment shipmentResponse = shipmentService.createShipment(shipment, fleetOperator);
+            Shipment shipmentResponse = shipmentService.createShipment(shipment, fleetOperator, httpServletRequest);
             return ApiResponseDTO.<ShipmentCreateResponse>builder()
                     .data(ShipmentMapper.toShipmentCreateResponse(shipmentResponse))
                     .success(Boolean.TRUE)
