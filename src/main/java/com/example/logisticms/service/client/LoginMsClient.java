@@ -20,7 +20,7 @@ import java.util.UUID;
 @Component
 public class LoginMsClient {
 
-    @Value("${LOGIN_MS_URL}")
+    @Value("${UPSTREAM_LOGINMS_URL}")
     private String loginMsUrl;
 
     @Value("${INTERNAL_API_TOKEN}")
