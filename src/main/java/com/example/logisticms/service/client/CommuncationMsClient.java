@@ -19,7 +19,7 @@ import java.util.Objects;
 @Component
 public class CommuncationMsClient {
 
-    @Value("${COMMUNICATION_MS_URL}")
+    @Value("${UPSTREAM_COMMUNICATION_MS_URL}")
     private String communicationMsUrl;
 
     @Value("${INTERNAL_API_TOKEN}")
